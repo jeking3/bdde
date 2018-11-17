@@ -1,0 +1,180 @@
+#
+# Copyright (c) 2018 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Docker build environment for Boost
+# Provides everything you need for development in any boost lib.
+# (for linux, at least..)
+#
+
+FROM ubuntu:bionic
+MAINTAINER James E. King III <jking@apache.org>
+ENV CONTAINER_USER=boost
+ENV DEBIAN_FRONTEND noninteractive
+WORKDIR /boost
+
+# Load apt-utils first, fixes warnings
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      apt-utils
+
+# Basic utilities
+
+RUN apt-get install -y --no-install-recommends \
+      bash-completion \
+      bzip2 \
+      ca-certificates \
+      curl \
+      file \
+      git \
+      gpg-agent \
+      patch \
+      procps \
+      software-properties-common \
+      sudo \
+      unzip \
+      vim \
+      wget
+
+# Hook in the Ubuntu PPA Repositories
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update
+
+# C++
+
+RUN apt-get install -y \
+      build-essential \
+      clang \
+      clang++-6 \
+      cmake \
+      g++-8 \
+      gdb \
+      lcov \
+      libc++-dev \
+      libc++-helpers \
+      libstdc++6-8-dbg \
+      valgrind
+
+#################################################################
+## Boost Library Dependencies
+## Do not "de-dupe" - this is a canonical list of dependencies!
+#################################################################
+
+# asio
+RUN apt-get install -y --no-install-recommends \
+      libssl-dev
+
+# beast
+RUN apt-get install -y --no-install-recommends \
+      libssl-dev \
+      zlib1g-dev
+
+# gil
+RUN apt-get install -y --no-install-recommends \
+      libjpeg-dev \
+      libpng-dev \
+      libtiff-dev \
+      zlib1g-dev
+
+# integer
+RUN apt-get install -y --no-install-recommends \
+      libgmp-dev
+
+# interval (for one disabled example)
+RUN apt-get install -y --no-install-recommends \
+      libgmp-dev \
+      libmpfr-dev
+
+# iostreams
+RUN apt-get install -y --no-install-recommends \
+      libbz2-dev \
+      liblzma-dev \
+      libzstd-dev \
+      zlib1g-dev
+
+# locale
+RUN apt-get install -y --no-install-recommends \
+      libicu-dev
+
+# mpi
+RUN apt-get install -y --no-install-recommends \
+      libopenmpi-dev
+
+# python
+RUN apt-get install -y --no-install-recommends \
+      python3-dev
+
+# stacktrace
+RUN cd /usr/local/src && \
+    git clone https://github.com/ianlancetaylor/libbacktrace.git && \
+    cd libbacktrace && \
+    ./configure && \
+    make -j3 install && \
+    cd .. && \
+    rm -rf libbacktrace
+
+# sync
+#     pthread-win32, but not on Unix
+
+# thread
+#     pthread-win32, but not on Unix
+
+#################################################################
+# Prerequisites for boostbook (does what setup_boostbook.sh does)
+# for documentation builds to work
+
+RUN apt-get install -y --no-install-recommends \
+      xsltproc \
+      doxygen \
+      openjdk-11-jre-headless
+
+RUN cd /opt && \
+    wget --quiet http://sourceforge.net/projects/docbook/files/docbook-xsl/1.75.2/docbook-xsl-1.75.2.tar.gz && \
+    tar xzf docbook-xsl-1.75.2.tar.gz && \
+    rm docbook-xsl-1.75.2.tar.gz
+
+RUN cd /opt && \
+    mkdir docbook-dtd-4.2 && \
+    cd docbook-dtd-4.2 && \
+    wget --quiet http://www.oasis-open.org/docbook/xml/4.2/docbook-xml-4.2.zip && \
+    unzip -q docbook-xml-4.2.zip && \
+    rm docbook-xml-4.2.zip
+
+RUN cd /opt && \
+    wget --quiet http://archive.apache.org/dist/xmlgraphics/fop/binaries/fop-0.94-bin-jdk1.4.tar.gz && \
+    tar xzf fop-0.94-bin-jdk1.4.tar.gz && \
+    rm fop-0.94-bin-jdk1.4.tar.gz
+
+#################################################################
+# cppcheck need 1.85 or later, Bionic has 1.82
+
+ENV CPPCHKVER=1.85
+RUN mkdir /tmp/cppcheck && \
+    cd /tmp/cppcheck && \
+    wget https://github.com/danmar/cppcheck/archive/$CPPCHKVER.tar.gz && \
+    tar xzf $CPPCHKVER.tar.gz && \
+    mkdir cppcheck-build && \
+    cd cppcheck-build && \
+    cmake ../cppcheck-$CPPCHKVER -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF && \
+    make -j3 install 2>&1 > /dev/null && \
+    cd /tmp && \
+    rm -rf /tmp/cppcheck
+
+#################################################################
+# Build as a regular user
+# Credit: https://github.com/delcypher/docker-ubuntu-cxx-dev/blob/master/Dockerfile
+# License: None specified at time of import
+# Add non-root user for container but give it sudo access.
+# Password is the same as the username
+RUN useradd -m ${CONTAINER_USER} && \
+    echo ${CONTAINER_USER}:${CONTAINER_USER} | chpasswd && \
+    echo "${CONTAINER_USER}  ALL=(root) ALL" >> /etc/sudoers
+RUN chsh --shell /bin/bash ${CONTAINER_USER}
+USER ${CONTAINER_USER}
+#################################################################
+
+ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
