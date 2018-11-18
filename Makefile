@@ -6,39 +6,12 @@
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 
-.PHONY: bootstrap build clean image prompt run shell source test
-
-bootstrap: must-define-BOOST_ROOT
-	docker run -v ${BOOST_ROOT}:/boost:rw -it boost/bdde:latest /bin/bash -c "./bootstrap.sh"
-
-build: must-define-BOOST_ROOT
-	docker run -v ${BOOST_ROOT}:/boost:rw -it boost/bdde:latest /bin/bash -c "./b2 -a -q -j3"
-
 clean:
-	docker rm $(docker ps -a -q)
-	docker rmi $(docker images -q -f dangling=true)`
-	docker run -v ${BOOST_ROOT}:/boost:rw -it boost/bdde:latest /bin/bash -c "./b2 clean"
+	@ if [ ! -z "$(docker ps -a -q)" ]; then docker rm $(docker ps -a -q); fi
+	@ if [ ! -z "$(docker images -q -f dangling=true)" ]; then docker rmi $(docker images -q -f dangling=true); fi
 
 image:
-	docker build -t boost/bdde:latest .
+	docker pull jeking3/bdde:linux || docker build -t jeking3/bdde:linux -f Dockerfile.linux .
 
-minimal:
-	@ if [ ! -d boost ]; then git clone https://github.com/boostorg/boost.git; fi
-	cd boost && git submodule update --init tools/build
-	cd boost && git submodule update --init libs/predef
-	BOOST_ROOT=$(pwd)/boost
-
-must-define-%:
-	@ if [ -z "${${*}}" ]; then exit 1; fi
-
-prompt: shell
-run:    shell
-shell:  must-define-BOOST_ROOT
-	docker run -v ${BOOST_ROOT}:/boost:rw -it boost/bdde:latest /bin/bash
-
-source:
-	git clone https://github.com/boostorg/boost.git
-	cd boost && git checkout -t origin/develop && git submodule update --init --recursive
-
-test:   image minimal bootstrap
-	docker run -v ${BOOST_ROOT}:/boost:rw -it boost/bdde:latest /bin/bash -c "./b2 -a -q libs/predef/test"
+test:
+	./bin/linux/test/bash_unit/bash_unit ./bin/linux/test/test_*.sh

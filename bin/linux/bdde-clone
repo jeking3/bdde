@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2018 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# bdde-clone will clone the boost repositories into BOOST_ROOT
+# Arguments:
+#   $1 (optional) branch name, default 'develop'
+#
+
+if [ -z "${BOOST_ROOT}" ]; then
+    2>& echo "ERROR: The environment variable BOOST_ROOT is not set."
+    return 5 # EINVAL
+fi
+
+BOOST_BRANCH=${1:-develop}
+
+git clone https://github.com/boostorg/boost.git ${BOOST_ROOT} && \
+pushd ${BOOST_ROOT} && git checkout -t origin/${BOOST_BRANCH} && \
+      git submodule update --init --recursive && popd
