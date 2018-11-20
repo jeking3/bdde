@@ -10,7 +10,7 @@ necessary to build boost completely, including documentation.
 
 | Branch          | Docker Hub | Travis |
 | :-------------: | ---------- | ------ |
-| [`master`](https://github.com/jeking3/bdde) | [Build Status](https://hub.docker.com/r/jeking3/bdde/builds/) | ([![Build Status](https://travis-ci.org/jeking3/bdde.svg?branch=master)](https://travis-ci.org/jeking3/bdde/branches) |
+| [`master`](https://github.com/jeking3/bdde) | [Build Status](https://hub.docker.com/r/jeking3/bdde/builds/) | [![Build Status](https://travis-ci.org/jeking3/bdde.svg?branch=master)](https://travis-ci.org/jeking3/bdde/branches) |
 
 ## Future Plans
 
