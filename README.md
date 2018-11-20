@@ -6,6 +6,12 @@ easy to use.
 This container provides all of the required and optional dependencies
 necessary to build boost completely, including documentation.
 
+## Status
+
+| Branch          | Docker Hub | Travis |
+| :-------------: | ---------- | ------ |
+| [`master`](https://github.com/jeking3/bdde) | [Build Status](https://hub.docker.com/r/jeking3/bdde/builds/) | ([![Build Status](https://travis-ci.org/jeking3/bdde.svg?branch=master)](https://travis-ci.org/jeking3/bdde/branches) |
+
 ## Future Plans
 
 * Cross-compilation with gcc on the linux container.  The goal is to
