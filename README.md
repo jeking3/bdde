@@ -72,6 +72,8 @@ Jam.  You need to build it one time using the bootstrap shell script.
 
     boost@47ee8d52a242:/boost$ ./bootstrap.sh
 
+#### Building
+
 BDDE makes it easy to jump into and out of the docker build container.  When
 you run `bdde` from a subdirectory in your `BOOST_ROOT`, the shell within
 the container is set to the same working directory.  For example:
@@ -88,3 +90,16 @@ To build something inside the docker container shell, follow this example:
 More information on building boost with Boost.Build can be found at:
 
 https://www.boost.org/doc/libs/1_68_0/more/getting_started/unix-variants.html
+
+#### UBSAN
+
+BDDE provides a convenience to make it easy to run anything under UBSAN, for
+example an entire project:
+
+    boost@47ee8d52a242:/boost/libs/uuid$ ubsan -q -j3 cxxstd=03
+
+or just one test:
+
+    boost@47ee8d52a242:/boost/libs/uuid$ cd test
+    boost@47ee8d52a242:/boost/libs/uuid/test$ ubsan -q -j3 cxxstd=11 test_uuid
+

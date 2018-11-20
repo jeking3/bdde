@@ -14,4 +14,4 @@ image:
 	docker pull jeking3/bdde:linux || docker build -t jeking3/bdde:linux -f Dockerfile.linux .
 
 test:
-	./bin/linux/test/bash_unit/bash_unit ./bin/linux/test/test_*.sh
+	./bin/linux/test/bash_unit/bash_unit -f tap ./bin/linux/test/test_*.sh

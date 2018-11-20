@@ -9,7 +9,10 @@
 # Boost Docker Development Environment
 #
 
-. $(dirname ${BASH_SOURCE[0]})/lib/find_boost_root.sh
+BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
+BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
+. ${BDDE_LIB}/echo_and_run.sh
+. ${BDDE_LIB}/find_boost_root.sh
 
 set -e
 BOOST_ROOT=$(find_boost_root)
@@ -22,4 +25,4 @@ function echo_and_run
     $*
 }
 
-echo_and_run docker run -v "${BOOST_ROOT}:/boost:rw" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 
+echo_and_run docker run -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 

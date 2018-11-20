@@ -178,3 +178,4 @@ USER ${CONTAINER_USER}
 #################################################################
 
 ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
+ENV PATH="/boost:/bdde/bin/linux:$PATH"
