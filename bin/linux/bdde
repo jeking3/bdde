@@ -25,4 +25,4 @@ function echo_and_run
     $*
 }
 
-echo_and_run docker run -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 
+echo_and_run docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 
