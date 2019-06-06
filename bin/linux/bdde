@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 James E. King III
+# Copyright (C) 2018 - 2019 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -25,4 +25,4 @@ function echo_and_run
     $*
 }
 
-echo_and_run docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 
+echo_and_run docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" --workdir "/${BOOST_STEM}" ${BDDE_DOCKER_CUSTOM} -it jeking3/bdde:linux /bin/bash 
