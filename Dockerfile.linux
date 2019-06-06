@@ -57,6 +57,7 @@ RUN apt-get install -y \
       libc++-dev \
       libc++-helpers \
       libstdc++6-8-dbg \
+      libubsan1-dbg \
       valgrind
 
 #################################################################
