@@ -30,9 +30,8 @@ docker container environment.  The linux build container includes:
 1. All of the required and optional dependencies for boost repositories.
 2. All of the documentation build dependencies.
 3. A known good version of clang, currently 6.0.
-   clang does not support side-by-side installation.
-4. Many known good versions of gcc, currently:
-   4.8.2, 5.x, 6.x, 7.3.0, 8.2.0.
+   (clang does not support side-by-side installation)
+4. Many version of gcc from 5.x through 9.x.
 5. Both libstdc++ and libc++ are provided.
 6. Components for static code analysis (cppcheck, ubsan, valgrind).
 
@@ -50,7 +49,7 @@ Pull or build the linux docker image:
 
     user@ubuntu:~/bdde$ make image
 
-Add the `bin/linux` path to your environment for example:
+Add the `bin/linux` path to your environment (or do this in your .profile to make it permanent):
 
     user@ubuntu:~/bdde$ export PATH=$(pwd)/bin/linux:$PATH
 
@@ -95,7 +94,7 @@ To build something inside the docker container shell, follow this example:
 
 More information on building boost with Boost.Build can be found at:
 
-https://www.boost.org/doc/libs/1_68_0/more/getting_started/unix-variants.html
+https://www.boost.org/doc/libs/1_70_0/more/getting_started/unix-variants.html
 
 #### UBSAN
 

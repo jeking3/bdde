@@ -37,14 +37,17 @@ RUN apt-get install -y --no-install-recommends \
       sudo \
       unzip \
       vim \
-      wget
+      wget \
+      xsltproc
 
 # C++
 
 RUN apt-get install -y \
       build-essential \
       g++-4.8 \
-      gdb
+      gdb \
+      libgcc1-dbg \
+      libstdc++6-5-dbg
 
 #################################################################
 ## Boost Library Dependencies
