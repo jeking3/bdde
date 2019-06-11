@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 James E. King III
+# Copyright (c) 2018 - 2019 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -9,8 +9,13 @@
 # Provides everything you need for development in any boost lib.
 # (for linux, at least..)
 #
+# multiarch prerequisites:
+#
+# 1. Install the qemu-user-static package.
+# 2. Run `docker run --rm --privileged multiarch/qemu-user-static:register --reset`
+#
 
-FROM ubuntu:xenial
+FROM multiarch/ubuntu-debootstrap:arm64-bionic
 MAINTAINER James E. King III <jking@apache.org>
 ENV CONTAINER_USER=boost
 ENV DEBIAN_FRONTEND noninteractive
@@ -31,23 +36,39 @@ RUN apt-get install -y --no-install-recommends \
       curl \
       file \
       git \
+      gpg-agent \
       patch \
       procps \
       software-properties-common \
       sudo \
       unzip \
       vim \
-      wget \
-      xsltproc
+      wget
+
+# Hook in the Ubuntu PPA Repositories
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+    apt-get update
 
 # C++
 
 RUN apt-get install -y \
       build-essential \
-      g++-4.8 \
+      clang++ \
+      cmake \
+      g++-7 \
+      g++-9 \
       gdb \
-      libgcc1-dbg \
-      libstdc++6-5-dbg
+      libc++-dev \
+      libubsan1-dbg \
+      valgrind
+#     clang \
+#     clang++-6 \
+#     g++-5 \
+#     g++-6 \
+#     g++-8 \
+#     lcov \
+#     libc++-helpers \
+#     libstdc++6-8-dbg \
 
 #################################################################
 ## Boost Library Dependencies
@@ -91,8 +112,8 @@ RUN apt-get install -y --no-install-recommends \
       libicu-dev
 
 # mpi
-RUN apt-get install -y --no-install-recommends \
-      libopenmpi-dev
+# RUN apt-get install -y --no-install-recommends \
+#       libopenmpi-dev
 
 # python
 RUN apt-get install -y --no-install-recommends \
@@ -112,6 +133,32 @@ RUN cd /usr/local/src && \
 
 # thread
 #     pthread-win32, but not on Unix
+
+#################################################################
+# Prerequisites for boostbook (does what setup_boostbook.sh does)
+# for documentation builds to work
+
+RUN apt-get install -y --no-install-recommends \
+      xsltproc \
+      doxygen \
+      openjdk-11-jre-headless
+
+RUN cd /opt && \
+    wget --quiet http://sourceforge.net/projects/docbook/files/docbook-xsl/1.75.2/docbook-xsl-1.75.2.tar.gz && \
+    tar xzf docbook-xsl-1.75.2.tar.gz && \
+    rm docbook-xsl-1.75.2.tar.gz
+
+RUN cd /opt && \
+    mkdir docbook-dtd-4.2 && \
+    cd docbook-dtd-4.2 && \
+    wget --quiet http://www.oasis-open.org/docbook/xml/4.2/docbook-xml-4.2.zip && \
+    unzip -q docbook-xml-4.2.zip && \
+    rm docbook-xml-4.2.zip
+
+RUN cd /opt && \
+    wget --quiet http://archive.apache.org/dist/xmlgraphics/fop/binaries/fop-0.94-bin-jdk1.4.tar.gz && \
+    tar xzf fop-0.94-bin-jdk1.4.tar.gz && \
+    rm fop-0.94-bin-jdk1.4.tar.gz
 
 #################################################################
 # Build as a regular user
