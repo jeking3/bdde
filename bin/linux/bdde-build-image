@@ -12,6 +12,6 @@
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
 BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 . ${BDDE_LIB}/defaults.sh
-. ${BDDE_LIB}/echo_and_run.sh
 
-echo_and_run docker pull ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} || docker build -t ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} -f Dockerfile.${BDDE_OS}-${BDDE_ARCH} .
+set -x
+docker pull ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} || docker build -t ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} -f Dockerfile.${BDDE_OS}-${BDDE_ARCH} .

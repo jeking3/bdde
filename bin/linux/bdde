@@ -12,7 +12,6 @@
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
 BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 . ${BDDE_LIB}/defaults.sh
-. ${BDDE_LIB}/echo_and_run.sh
 . ${BDDE_LIB}/find_boost_root.sh
 
 set -e
@@ -20,4 +19,10 @@ BOOST_ROOT=$(find_boost_root)
 BOOST_STEM=${BOOST_STEM:-$(realpath --logical --relative-base="${BOOST_ROOT}/.." "$(pwd)")}
 set +e
 
-echo_and_run docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined ${BDDE_DOCK} -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" --workdir "/${BOOST_STEM}" -it ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} ${BDDE_SHELL} $*
+if [ $# -ne 0 ]; then
+  set -x
+  docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined ${BDDE_DOCK} -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" --workdir "/${BOOST_STEM}" -it ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} ${BDDE_SHELL} -c "$*"
+else
+  set -x
+  docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined ${BDDE_DOCK} -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" --workdir "/${BOOST_STEM}" -it ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} ${BDDE_SHELL}
+fi
