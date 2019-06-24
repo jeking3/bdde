@@ -89,24 +89,34 @@ directory will be preserved.  Anything you do outside of the `/boost`
 directory is destroyed when you exit the docker container shell prompt.
 
 Boost provides its own build system, Boost.Build, previously known as Boost
-Jam.  You need to build it one time using the bootstrap shell script.
+Jam.  You need to build it one time using the bootstrap shell script.  This
+will generate the b2 executable:
 
-    boost@47ee8d52a242:/boost$ ./bootstrap.sh
+    user@ubuntu:~/boost$ bdde bootstrap.sh
 
-#### Building
+The previous example also demonstrates how to run a one-off command inside
+the docker container from your current directory.
+
+#### Shell
 
 BDDE makes it easy to jump into and out of the docker build container.  When
 you run `bdde` from a subdirectory in your `BOOST_ROOT`, the shell within
 the container is set to the same working directory.  For example:
 
     user@ubuntu:~/boost/libs/uuid$ bdde
-    boost@47ee8d52a242:/boost/libs/uuid$
+    boost@47ee8d52a242:/boost/libs/uuid$ b2 -q
     
 The top level boost directory is added to your path inside the container
 allowing you to run b2 without using relative paths back to `BOOST_ROOT`.
-To build something inside the docker container shell, follow this example:
 
-    boost@47ee8d52a242:/boost/libs/uuid$ b2 -q -j3 variant=debug cxxstd=11
+#### Invoking
+
+You can invoke a command inside the container and then return to your shell
+by adding arguments to the end of the bdde command:
+
+    user@ubuntu:~/boost/libs/uuid$ bdde b2 -q -j3 variant=debug cxxstd=11
+    ... build output ...
+    user@ubuntu:~/boost/libs/uuid$ 
 
 More information on building boost with Boost.Build can be found at:
 
@@ -114,15 +124,11 @@ https://www.boost.org/doc/libs/1_70_0/more/getting_started/unix-variants.html
 
 #### UBSAN
 
-BDDE provides a convenience to make it easy to run anything under UBSAN, for
-example an entire project:
+BDDE provides a convenience to make it easy to run anything under UBSAN.
+This is a modification of the b2 command with options added to invoke UBSAN
+and to print a stacktrace on error:
 
-    boost@47ee8d52a242:/boost/libs/uuid$ ubsan -q -j3 cxxstd=03
-
-or just one test:
-
-    boost@47ee8d52a242:/boost/libs/uuid$ cd test
-    boost@47ee8d52a242:/boost/libs/uuid/test$ ubsan -q -j3 cxxstd=11 test_uuid
+    user@ubuntu:~/boost/libs/uuid/test$ bdde ubsan cxxstd=03 test_sha1
 
 ## Environment
 
@@ -152,6 +158,10 @@ Set the operating system for the docker container.  Choices are (* default):
 Set the Docker Hub repository name to pull from or name the images for.
 The default is `jeking3/bdde`.
 
+### `BDDE_SHELL`
+
+The shell to use.  The default is `/bin/bash`.
+
 ### `BOOST_ROOT`
 
 This points to the boostorg/boost superproject cloned locally.  If this
@@ -172,9 +182,10 @@ on a little-endian x86_64 host running Ubuntu Bionic:
 
 ### Running a unit test in Boost.Predef
 
-    user@ubuntu:~/boost$ BDDE_OS=red BDDE_ARCH=ppc64 bdde
-    docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost:/boost:rw -v /home/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost -it jeking3/bdde:red-ppc64 /bin/bash
-    [boost@0bcf36128e5c boost]$ ./bootstrap.sh
+    user@ubuntu:~/boost$ export BDDE_OS=red
+    user@ubuntu:~/boost$ export BDDE_ARCH=ppc64
+    user@ubuntu:~/boost$ bdde bootstrap.sh
+    + docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost:/boost:rw -v /home/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost -it jeking3/bdde:red-ppc64 /bin/bash -c 'bootstrap.sh'
     Building Boost.Build engine with toolset gcc... tools/build/src/engine/b2
     Unicode/ICU support for Boost.Regex?... not found.
     Backing up existing Boost.Build configuration in project-config.jam.31
@@ -200,25 +211,24 @@ on a little-endian x86_64 host running Ubuntu Bionic:
        - Boost.Build documentation:
          http://www.boost.org/build/
     
-    [boost@0bcf36128e5c boost]$ cd libs/predef/test
-    [boost@0bcf36128e5c test]$ ../../../b2 info_as_cpp
-    MPI auto-detection failed: unknown wrapper compiler mpic++
-    Please report this error to the Boost mailing list: http://www.boost.org
-    You will need to manually configure MPI support.
+    user@ubuntu:~/boost$ cd libs/predef/test
+    user@ubuntu:~/boost/libs/predef/test$ bdde
+    boost@554276e34481:/boost/libs/predef/test$ b2 -a info_as_cpp
     Performing configuration checks
     
         - default address-model    : 64-bit
-        - default architecture     : power
-        - symlinks supported       : yes (cached)
+        - default architecture     : x86
+        - symlinks supported       : yes
     ...patience...
-    ...found 339 targets...
-    ...updating 8 targets...
-    gcc.compile.c++ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-6.4.1/debug/threading-multi/visibility-hidden/info_as_cpp.o
-    gcc.link ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-6.4.1/debug/threading-multi/visibility-hidden/info_as_cpp
-    testing.capture-output ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-6.4.1/debug/threading-multi/visibility-hidden/info_as_cpp.run
-    **passed** ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-6.4.1/debug/threading-multi/visibility-hidden/info_as_cpp.test
-    ...updated 8 targets...
-    [boost@0bcf36128e5c test]$ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-6.4.1/debug/threading-multi/visibility-hidden/info_as_cpp | head -10
+    ...found 338 targets...
+    ...updating 5 targets...
+    link.mklink ../../../boost/predef.h
+    gcc.compile.c++ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.o
+    gcc.link ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp
+    testing.capture-output ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.run
+    **passed** ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.test
+    ...updated 5 targets...
+    boost@554276e34481:/boost/libs/predef/test$ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp | head -10
     ** Detected **
     BOOST_ARCH_PPC = 1 (0,0,1) | PowerPC
     BOOST_COMP_GNUC = 60400001 (6,4,1) | Gnu GCC C/C++
