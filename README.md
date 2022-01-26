@@ -67,7 +67,7 @@ Add the `bin/linux` path to your environment (or do this in your .profile to mak
 
 Pull or build the linux docker image for the architecture you want, for exmaple:
 
-    user@ubuntu:~/bdde$ make linux-x86_64
+    user@ubuntu:~/bdde$ make deb-x86_64
 
 If you do not have the boost source tree locally, obtain it:
 
