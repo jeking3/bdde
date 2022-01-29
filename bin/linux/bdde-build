@@ -9,11 +9,13 @@
 # Boost Docker Development Environment
 #
 
-BDDE_ARCH=${BDDE_ARCH:-x86_64}
-BDDE_DISTRO=${BDDE_DISTRO:-ubuntu}
-BDDE_EDITION=${BDDE_EDITION:-focal}
-BDDE_REPO=${BDDE_REPO:-jeking3/bdde}
-BDDE_SHELL=${BDDE_SHELL:-/bin/bash}
-BDDE_SLUG=${BDDE_DISTRO}-${BDDE_EDITION}.${BDDE_ARCH}
+BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
+BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
+. ${BDDE_LIB}/defaults.sh
 
-export DOCKER_BUILDKIT=1
+if [ ! -z "${BDDE_REBUILD}" ]; then
+  DOCKER_CACHE_OPTION=--no-cache
+fi
+
+set -x
+docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_REPO}:${BDDE_SLUG} -f Dockerfile.${BDDE_SLUG} .

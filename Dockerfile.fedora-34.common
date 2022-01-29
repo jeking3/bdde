@@ -1,38 +1,37 @@
 #
-# Copyright (c) 2018 - 2019 James E. King III
+# Copyright (c) 2018 - 2022 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-# Boost Docker Build Environment:
+# Boost Docker Development Environment
 #
-#   - PowerPC
-#   - Big Endian
-#
-# multiarch prerequisites:
-#
-# 1. Install the qemu-user-static package.
-# 2. Run `docker run --rm --privileged multiarch/qemu-user-static:register --reset`
-# 3. Copy /usr/bin/qemu-ppc64-static to the bdde directory.
+# Common redhat family commands to install necessary files.
 #
 
-FROM multiarch/fedora:25-ppc64
-MAINTAINER James E. King III <jking@apache.org>
 ENV CONTAINER_USER=boost
-ENV DEBIAN_FRONTEND noninteractive
-WORKDIR /boost
-
-COPY qemu-ppc64-static /usr/bin/qemu-ppc64-static
 
 RUN dnf groupinstall -y 'Development Tools'
-RUN dnf install -y util-linux-user libxslt
-RUN dnf install -y sudo
-RUN dnf install -y gcc-c++
-RUN dnf install -y gdb
+RUN dnf install -y \
+      clang \
+      cmake \
+      cppcheck \
+      gcc-c++ \
+      gdb \
+      libxslt \
+      sudo \
+      util-linux-user \
+      which \
+      valgrind
 
-# 
-# # Load apt-utils first, fixes warnings
+### late additions to avoid huge rebuilds, consolidate on next big release
+
+RUN dnf install -y libcxx libcxx-devel libcxxabi-devel
+
+# the following stuff hasn't been fully translated to redhat/fedora-speak yet
+
+# Load apt-utils first, fixes warnings
 # 
 # RUN apt-get update && \
 #     apt-get install -y --no-install-recommends \
@@ -178,7 +177,7 @@ RUN dnf install -y gdb
 # License: None specified at time of import
 # Add non-root user for container but give it sudo access.
 # Password is the same as the username
-RUN useradd -m ${CONTAINER_USER} && \
+RUN useradd -m ${CONTAINER_USER} -g wheel && \
     echo ${CONTAINER_USER}:${CONTAINER_USER} | chpasswd && \
     echo "${CONTAINER_USER}  ALL=(root) ALL" >> /etc/sudoers
 RUN chsh --shell /bin/bash ${CONTAINER_USER}
@@ -187,3 +186,4 @@ USER ${CONTAINER_USER}
  
 ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
 ENV PATH="/boost:/bdde/bin/linux:$PATH"
+WORKDIR /boost

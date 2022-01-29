@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 - 2019 James E. King III
+# Copyright (C) 2018 - 2022 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -14,4 +14,4 @@ BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 . ${BDDE_LIB}/defaults.sh
 
 set -x
-docker pull ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} || docker build -t ${BDDE_REPO}:${BDDE_OS}-${BDDE_ARCH} -f Dockerfile.${BDDE_OS}-${BDDE_ARCH} .
+docker rmi ${BDDE_REPO}:${BDDE_SLUG}

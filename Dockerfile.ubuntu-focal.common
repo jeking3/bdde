@@ -1,20 +1,17 @@
 #
-# Copyright (c) 2018 - 2019 James E. King III
+# Copyright (c) 2018 - 2022 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-# Docker build environment for Boost
-# Provides everything you need for development in any boost lib.
-# (for linux, at least..)
+# Boost Docker Development Environment
+#
+# Common debian family commands to install necessary files.
 #
 
-FROM ubuntu:bionic
-MAINTAINER James E. King III <jking@apache.org>
 ENV CONTAINER_USER=boost
-ENV DEBIAN_FRONTEND noninteractive
-WORKDIR /boost
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Load apt-utils first, fixes warnings
 
@@ -40,28 +37,20 @@ RUN apt-get install -y --no-install-recommends \
       vim \
       wget
 
-# Hook in the Ubuntu PPA Repositories
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
-    apt-get update
-
 # C++
 
 RUN apt-get install -y \
       build-essential \
       clang \
-      clang++-6 \
       cmake \
-      g++-5 \
-      g++-6 \
-      g++-7 \
-      g++-8 \
-      g++-9 \
+      cppcheck \
+      gcc \
+      g++ \
       gdb \
       lcov \
+      libc6-dbg \
       libc++-dev \
-      libc++-helpers \
-      libstdc++6-8-dbg \
-      libubsan1-dbg \
+      libstdc++6-9-dbg \
       valgrind
 
 #################################################################
@@ -154,20 +143,10 @@ RUN cd /opt && \
     tar xzf fop-0.94-bin-jdk1.4.tar.gz && \
     rm fop-0.94-bin-jdk1.4.tar.gz
 
-#################################################################
-# cppcheck need 1.85 or later, Bionic has 1.82
+### late additions to avoid huge rebuilds, consolidate on next big release
 
-ENV CPPCHKVER=1.87
-RUN mkdir /tmp/cppcheck && \
-    cd /tmp/cppcheck && \
-    wget https://github.com/danmar/cppcheck/archive/$CPPCHKVER.tar.gz && \
-    tar xzf $CPPCHKVER.tar.gz && \
-    mkdir cppcheck-build && \
-    cd cppcheck-build && \
-    cmake ../cppcheck-$CPPCHKVER -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF && \
-    make -j3 install 2>&1 > /dev/null && \
-    cd /tmp && \
-    rm -rf /tmp/cppcheck
+RUN apt-get install -y \
+      libc++abi-dev
 
 #################################################################
 # Build as a regular user
@@ -184,3 +163,4 @@ USER ${CONTAINER_USER}
 
 ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
 ENV PATH="/boost:/bdde/bin/linux:$PATH"
+WORKDIR /boost

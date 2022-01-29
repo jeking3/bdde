@@ -1,0 +1,18 @@
+# syntax = edrevo/dockerfile-plus
+#
+# Copyright (c) 2018 - 2022 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Boost Docker Development Environment for Big Endian
+#
+
+FROM multiarch/fedora:34-s390x
+LABEL BDDE_DISTRO="fedora"
+LABEL BDDE_EDITION="34"
+LABEL BDDE_ARCH="s390x"
+LABEL MAINTAINER="James E. King III <jking@apache.org>"
+
+INCLUDE+ Dockerfile.fedora-34.common

@@ -1,55 +1,49 @@
 # Boost Docker Development Environment (BDDE)
 
-Provides a docker container for linux development of Boost that is
-easy to use and accelerates development and debugging of C++
-products.
+Provides a docker container for development of Boost that is easy to use
+and accelerates development and debugging:
 
-The x86_64 container provides all of the required and optional dependencies
-necessary to build boost completely, including documentation.  The other
-containers are missing some (or many) things and are not marked as "complete"
-below.
+- Containers marked 'complete' include all optional dependencies for boost
+  to build completely.
+- Multiarch containers allow you to build and test easily against other
+  architectures.
 
 Supported combinations of architecture and OS:
 
-| OS | Arch | Endian | Complete? | Notes |
-| -- | ---- | ------ | --------- | ----- |
-| deb | x86_64 | little | Yes | Ubuntu Bionic 18.04 LTS |
-| deb | arm64 | little | No | Ubuntu Bionic 18.04 LTS |
-| red | ppc64 | big | No | Fedora 25 |
+| DISTRO | EDITION | ARCH   | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
+| ------ | ------- | ------ | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
+| ubuntu | focal   | x86_64 | little | Yes       |  10.0 |  9.3 |  3.16 |     1.90 |     3.15 |
+| ubuntu | focal   | arm64  | little | Yes       |  10.0 |  9.3 |  3.16 |     1.90 |     3.15 |
+| fedora | 34      | s390x  | big    | No        |  12.0 | 11.2 |  3.20 |      2.6 |     3.18 |
 
 To use any image that is not native to your host architecture and endianness,
-you must satisfy the prerequisites of running a multiarch docker container.
+you must satisfy the prerequisites of running a
+[multiarch](https://github.com/multiarch/qemu-user-static) docker container:
 
-1. Install the qemu-user-static package.
-2. Run `docker run --rm --privileged multiarch/qemu-user-static:register --reset`
-
-See each Dockerfile for specific prerequisites.  Some containers may have special
-requirements.
+1. Install the binfmt-support and qemu-user-static packages.
+2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes`
 
 ## Status
 
-| Branch          | Docker Hub | Travis |
-| :-------------: | ---------- | ------ |
-| [`master`](https://github.com/jeking3/bdde) | [![Build Status](https://img.shields.io/docker/build/jeking3/bdde.svg?style=plastic)](https://cloud.docker.com/repository/docker/jeking3/bdde) | [![Build Status](https://travis-ci.org/jeking3/bdde.svg?branch=master)](https://travis-ci.org/jeking3/bdde/branches) |
+| Branch          | GitHub Actions |
+| :-------------: | -------------- |
+| [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/test.yml/badge.svg](https://github.com/jeking3/bdde/actions) |
 
 ## Future Plans
 
-* Support for a Visual Studio 201x Build Tools environment is planned,
+* Support for a Visual Studio 20xx Build Tools environment is planned,
   enabling Windows containerized builds with all of the required and
   optional dependencies prepared.
 
 ## Linux Development
 
 Linux development is possible on any platform with a linux-capable
-docker container environment.  The x86_64 container includes:
+docker container environment.  Complete containers include:
 
 1. All of the required and optional dependencies for boost repositories.
 2. All of the documentation build dependencies.
-3. A known good version of clang, currently 6.0.
-   (clang does not support side-by-side installation)
-4. Many version of gcc from 5.x through 9.x.
-5. Both libstdc++ and libc++ are provided.
-6. Components for static code analysis (ubsan, valgrind).
+3. Both libstdc++ and libc++ are provided.
+4. Components for static code analysis (cppcheck, ubsan, valgrind).
 
 BDDE will either use `BOOST_ROOT`, or determine it automatically based
 on your current working directory inside a boost source tree.
@@ -61,16 +55,22 @@ boost.
 
 ### Usage
 
-Add the `bin/linux` path to your environment (or do this in your .profile to make it permanent):
+Unless specified, the ubuntu-focal.x86_64 container is the one that will
+be used.  See the Environment Variables section below to learn how to
+control which container is used.
+
+Add the `bin/linux` path to your environment (or do this in your .profile
+to make it permanent):
 
     user@ubuntu:~/bdde$ export PATH=$(pwd)/bin/linux:$PATH
 
-Pull or build the linux docker image for the architecture you want, for exmaple:
+Pull or build the linux docker image for the architecture you want, for example:
 
-    user@ubuntu:~/bdde$ make deb-x86_64
+    user@ubuntu:~/bdde$ bdde-pull
 
 If you do not have the boost source tree locally, obtain it:
 
+    user@ubuntu:~$ export BOOST_ROOT=~/boost
     user@ubuntu:~$ bdde-clone
 
 The entire boost source collection is downloaded into `BOOST_ROOT`, and
@@ -81,21 +81,20 @@ with the top level.
 Now navigate to a location within your boost source tree and use `bdde`
 to jump into a docker container at that location where you can start a build.
 
-    user@ubuntu:~$ cd ~/boost
+    user@ubuntu:~$ cd $BOOST_ROOT
     user@ubuntu:~/boost$ bdde
 
-Now you are in the docker container.  Anything you do inside the `/boost`
-directory will be preserved.  Anything you do outside of the `/boost`
-directory is destroyed when you exit the docker container shell prompt.
+Now you are inside a docker container.  Anything you do inside the `/boost`
+directory will be preserved to your BOOST_ROOT.  Anything you do outside of
+the `/boost` directory is destroyed when you exit the docker container shell
+prompt.  Type `exit` to leave the container and go back to your host prompt.
 
 Boost provides its own build system, Boost.Build, previously known as Boost
-Jam.  You need to build it one time using the bootstrap shell script.  This
-will generate the b2 executable:
+Jam.  You need to build it one time using the bootstrap shell script.  By adding
+bdde in front of the command you want to run, whatever follows is run inside
+the development container.  This will generate the b2 executable:
 
     user@ubuntu:~/boost$ bdde bootstrap.sh
-
-The previous example also demonstrates how to run a one-off command inside
-the docker container from your current directory.
 
 #### Shell
 
@@ -120,15 +119,18 @@ by adding arguments to the end of the bdde command:
 
 More information on building boost with Boost.Build can be found at:
 
-https://www.boost.org/doc/libs/1_70_0/more/getting_started/unix-variants.html
+https://www.boost.org/doc/libs/1_78_0/more/getting_started/unix-variants.html
 
-#### UBSAN
+#### ASAN, TSAN, UBSAN, Valgrind
 
-BDDE provides a convenience to make it easy to run anything under UBSAN.
-This is a modification of the b2 command with options added to invoke UBSAN
-and to print a stacktrace on error:
+BDDE provides a convenience to make it easy to run anything under a sanitizer.
+This is a modification of the b2 command with options added to invoke the
+sanitizer and to print a stacktrace on error:
 
-    user@ubuntu:~/boost/libs/uuid/test$ bdde ubsan cxxstd=03 test_sha1
+    user@ubuntu:~/boost/libs/format$ bdde-asan
+    user@ubuntu:~/boost/libs/format$ bdde-tsan
+    user@ubuntu:~/boost/libs/format$ bdde-ubsan
+    user@ubuntu:~/boost/libs/format$ bdde-valgrind
 
 ## Environment
 
@@ -136,27 +138,26 @@ The following environment variables control the behavior of bdde:
 
 ### `BDDE_ARCH`
 
-Set the architecture to use in the container.  Choices are (* default):
+Set the architecture to use in the container.  Choices are based on the available
+Dockerfiles.  The default is `x86_64`.
 
-- arm64
-- ppc64
-- x86_64 (*)
+### `BDDE_DISTRO`
+
+Set the operating system for the docker container.  Choices are based on the
+available Dockerfiles.  The default is `ubuntu`.
 
 ### `BDDE_DOCK`
 
-Additional options to pass to docker.
+Additional options to pass to docker.  Not commonly used.
 
-### `BDDE_OS`
+### `BDDE_EDITION`
 
-Set the operating system for the docker container.  Choices are (* default):
-
-- deb (*) - Debian based
-- red - RedHat based
+Set the distribution edition (release).  Choices are based on the available
+Dockerfiles.  The default is `focal`.
 
 ### `BDDE_REPO`
 
-Set the Docker Hub repository name to pull from or name the images for.
-The default is `jeking3/bdde`.
+Set the Docker Hub repository name to pull from.  The default is `jeking3/bdde`.
 
 ### `BDDE_SHELL`
 
@@ -174,68 +175,83 @@ on a little-endian x86_64 host running Ubuntu Bionic:
 
 ### Installing Prerequisites
 
-    root@ubuntu:~# apt-get install -y binfmt-support
-    root@ubuntu:~# wget http://lug.mtu.edu/ubuntu/pool/universe/q/qemu/qemu-user-static_3.1+dfsg-2ubuntu3.1_amd64.deb
-    root@ubuntu:~# dpkg -i qemu-user-static_3.1+dfsg-2ubuntu3.1_amd64.deb
+    user@ubuntu:~$ sudo apt-get install -y binfmt-support qemu-user-static
+    user@ubuntu:~$ sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-    user@ubuntu:~$ docker run --rm --privileged multiarch/qemu-user-static:register --reset
+### Running a unit test in Boost.Predef while emulating a big-endian system
 
-### Running a unit test in Boost.Predef
-
-    user@ubuntu:~/boost$ export BDDE_OS=red
-    user@ubuntu:~/boost$ export BDDE_ARCH=ppc64
+    user@ubuntu:~/boost$ export BDDE_DISTRO=fedora
+    user@ubuntu:~/boost$ export BDDE_EDITION=34
+    user@ubuntu:~/boost$ export BDDE_ARCH=s390x
     user@ubuntu:~/boost$ bdde bootstrap.sh
-    + docker run --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost:/boost:rw -v /home/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost -it jeking3/bdde:red-ppc64 /bin/bash -c 'bootstrap.sh'
-    Building Boost.Build engine with toolset gcc... tools/build/src/engine/b2
+    + docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost-root:/boost:rw -v /home/jking/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost/. -it jeking3/bdde:fedora-34.s390x /bin/bash -c 'bootstrap.sh'
+    ###
+    ###
+    ### Using 'gcc' toolset.
+    ###
+    ###
+
+    g++ (GCC) 11.2.1 20210728 (Red Hat 11.2.1-1)
+    Copyright (C) 2021 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+    ###
+    ###
+
+    > g++ -x c++ -std=c++11 -O2 -s -DNDEBUG builtins.cpp class.cpp command.cpp compile.cpp constants.cpp cwd.cpp debug.cpp debugger.cpp execcmd.cpp execnt.cpp execunix.cpp filesys.cpp filent.cpp fileunix.cpp frames.cpp function.cpp glob.cpp hash.cpp hcache.cpp hdrmacro.cpp headers.cpp jam_strings.cpp jam.cpp jamgram.cpp lists.cpp make.cpp make1.cpp md5.cpp mem.cpp modules.cpp native.cpp object.cpp option.cpp output.cpp parse.cpp pathnt.cpp pathsys.cpp pathunix.cpp regexp.cpp rules.cpp scan.cpp search.cpp startup.cpp subst.cpp sysinfo.cpp timestamp.cpp variable.cpp w32_getreg.cpp modules/order.cpp modules/path.cpp modules/property-set.cpp modules/regex.cpp modules/sequence.cpp modules/set.cpp -o b2
+    > cp b2 bjam
+    tools/build/src/engine/b2
     Unicode/ICU support for Boost.Regex?... not found.
-    Backing up existing Boost.Build configuration in project-config.jam.31
-    Generating Boost.Build configuration in project-config.jam for gcc...
-    
+    Backing up existing B2 configuration in project-config.jam.14
+    Generating B2 configuration in project-config.jam for gcc...
+
     Bootstrapping is done. To build, run:
-    
+
         ./b2
     
     To generate header files, run:
-    
+
         ./b2 headers
+
+    The configuration generated uses gcc to build by default. If that is
+    unintended either use the --with-toolset option or adjust configuration, by
+    editing 'project-config.jam'.
     
-    To adjust configuration, edit 'project-config.jam'.
-    Further information:
-    
-       - Command line help:
-         ./b2 --help
-    
-       - Getting started guide:
-         http://www.boost.org/more/getting_started/unix-variants.html
-    
-       - Boost.Build documentation:
-         http://www.boost.org/build/
-    
+    ...
+
     user@ubuntu:~/boost$ cd libs/predef/test
     user@ubuntu:~/boost/libs/predef/test$ bdde
-    boost@554276e34481:/boost/libs/predef/test$ b2 -a info_as_cpp
+    [boost@b36ab70f591f test]$ b2 toolset=gcc stdlib=gnu11 -a info_as_cpp
+    MPI auto-detection failed: unknown wrapper compiler mpic++
+    You will need to manually configure MPI support.
     Performing configuration checks
-    
-        - default address-model    : 64-bit
-        - default architecture     : x86
+
+        - default address-model    : 64-bit [1]
+        - default architecture     : s390x [1]
         - symlinks supported       : yes
+
+    [1] gcc-11
+    ...found 40 targets...
+    ...updating 11 targets...
+    mklink-or-dir ../../../boost
+    mklink-or-dir ../../../boost/predef
     ...patience...
-    ...found 338 targets...
-    ...updating 5 targets...
     link.mklink ../../../boost/predef.h
-    gcc.compile.c++ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.o
-    gcc.link ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp
-    testing.capture-output ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.run
-    **passed** ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp.test
-    ...updated 5 targets...
-    boost@554276e34481:/boost/libs/predef/test$ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-7/debug/threading-multi/visibility-hidden/info_as_cpp | head -10
+    gcc.compile.c++ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-11/debug/stdlib-gnu11/threading-multi/visibility-hidden/info_as_cpp.o
+    gcc.link ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-11/debug/stdlib-gnu11/threading-multi/visibility-hidden/info_as_cpp
+    testing.capture-output ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-11/debug/stdlib-gnu11/threading-multi/visibility-hidden/info_as_cpp.run
+    **passed** ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-11/debug/stdlib-gnu11/threading-multi/visibility-hidden/info_as_cpp.test
+    ...updated 12 targets...
+    [boost@b36ab70f591f test]$ ../../../bin.v2/libs/predef/test/info_as_cpp.test/gcc-11/debug/stdlib-gnu11/threading-multi/visibility-hidden/info_as_cpp | head -10
     ** Detected **
-    BOOST_ARCH_PPC = 1 (0,0,1) | PowerPC
-    BOOST_COMP_GNUC = 60400001 (6,4,1) | Gnu GCC C/C++
+    BOOST_ARCH_SYS390 = 1 (0,0,1) | System/390
+    BOOST_ARCH_WORD_BITS = 32 (0,0,32) | Word Bits
+    BOOST_ARCH_WORD_BITS_32 = 1 (0,0,1) | 32-bit Word Size
+    BOOST_COMP_GNUC = 110200001 (11,2,1) | Gnu GCC C/C++
     BOOST_ENDIAN_BIG_BYTE = 1 (0,0,1) | Byte-Swapped Big-Endian
     BOOST_LANG_STDC = 1 (0,0,1) | Standard C
-    BOOST_LANG_STDCPP = 440200001 (44,2,1) | Standard C++
-    BOOST_LIB_C_GNU = 22400000 (2,24,0) | GNU
-    BOOST_LIB_STD_GNU = 470700027 (47,7,27) | GNU
-    BOOST_OS_LINUX = 1 (0,0,1) | Linux
-    BOOST_OS_UNIX = 1 (0,0,1) | Unix Environment
+    BOOST_LANG_STDCPP = 470300001 (47,3,1) | Standard C++
+    BOOST_LIB_C_GNU = 23300000 (2,33,0) | GNU
+    BOOST_LIB_STD_GNU = 510700028 (51,7,28) | GNU

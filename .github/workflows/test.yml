@@ -1,0 +1,109 @@
+# 
+# Copyright 2022 James E. King III
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE.txt or copy at http://boost.org/LICENSE_1_0.txt)
+#
+---
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  posix:
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { distro: ubuntu, edition: focal, arch: x86_64, toolset: clang, stdlib: native }
+          - { distro: ubuntu, edition: focal, arch: x86_64, toolset: clang, stdlib: libc++ }
+          - { distro: ubuntu, edition: focal, arch: x86_64, toolset: gcc,   stdlib: native }
+          - { distro: ubuntu, edition: focal, arch: x86_64, toolset: gcc,   stdlib: libc++ }
+
+          - { distro: ubuntu, edition: focal, arch: arm64,  toolset: clang, stdlib: native, limit: minimal }
+          - { distro: ubuntu, edition: focal, arch: arm64,  toolset: clang, stdlib: libc++, limit: minimal }
+          - { distro: ubuntu, edition: focal, arch: arm64,  toolset: gcc,   stdlib: native, limit: minimal }
+          - { distro: ubuntu, edition: focal, arch: arm64,  toolset: gcc,   stdlib: libc++, limit: minimal }
+
+          - { distro: fedora, edition: 34,    arch: s390x,  toolset: clang, stdlib: native, limit: minimal }
+          - { distro: fedora, edition: 34,    arch: s390x,  toolset: clang, stdlib: libc++, limit: minimal }
+          - { distro: fedora, edition: 34,    arch: s390x,  toolset: gcc,   stdlib: native, limit: minimal }
+          - { distro: fedora, edition: 34,    arch: s390x,  toolset: gcc,   stdlib: libc++, limit: minimal }
+
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    env:
+      BDDE_DISTRO: ${{ matrix.distro }}
+      BDDE_EDITION: ${{ matrix.edition }}
+      BDDE_ARCH: ${{ matrix.arch }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run script tests
+        run: |
+          git submodule update --init bin/linux/test/bash_unit
+          make test
+
+      - name: Enable multiarch
+        run: |
+          sudo apt-get install -y binfmt-support qemu-user-static
+          sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          echo "$(pwd)/bin/linux" >> $GITHUB_PATH
+
+      - name: bdde-pull
+        run: bdde-pull
+
+      - name: bdde-clone
+        run: |
+          export BOOST_ROOT=$(pwd)/boost-root
+          bdde-clone
+          chmod -R 777 ${BOOST_ROOT}
+          echo "BOOST_ROOT=${BOOST_ROOT}" >> $GITHUB_ENV
+          echo "B2_ARGS=toolset=${{ matrix.toolset }} stdlib=${{ matrix.stdlib }}" >> $GITHUB_ENV
+
+      - name: Bootstrap
+        working-directory: ./boost-root
+        run: bdde bootstrap.sh --with-toolset="${{ matrix.toolset }}"
+
+      - name: Platform details
+        working-directory: ./boost-root/libs/predef/test
+        run: |
+          bdde b2 ${{ env.B2_ARGS }} -a info_as_cpp
+          find ../../../bin.v2/libs/predef/test/info_as_cpp.test/ -name info_as_cpp.run -exec cat {} \;
+
+      - name: bdde-asan
+        working-directory: ./boost-root/libs/format
+        if: "matrix.limit != 'minimal'"
+        run: bdde-asan ${{ env.B2_ARGS }}
+
+      - name: bdde-tsan
+        working-directory: ./boost-root/libs/format
+        if: "matrix.limit != 'minimal'"
+        run: bdde-tsan ${{ env.B2_ARGS }}
+
+      - name: bdde-ubsan
+        working-directory: ./boost-root/libs/format
+        run: bdde-ubsan ${{ env.B2_ARGS }}
+
+      - name: bdde-valgrind
+        working-directory: ./boost-root/libs/format
+        if: "matrix.limit != 'minimal'"
+        run: bdde-ubsan ${{ env.B2_ARGS }}
+
+      - name: Build all
+        working-directory: ./boost-root
+        if: "matrix.limit != 'minimal'"
+        run: bdde b2 ${{ env.B2_ARGS }}

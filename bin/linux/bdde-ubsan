@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 - 2019 James E. King III
+# Copyright (C) 2018 - 2022 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -15,4 +15,4 @@
 #
 
 set -x
-UBSAN_OPTIONS=print_stacktrace=1 b2 define=BOOST_NO_STRESS_TEST=1 undefined-sanitizer=norecover variant=debug linkflags=-fuse-ld=gold toolset=gcc-8 $*
+bdde UBSAN_OPTIONS=print_stacktrace=1 b2 define=BOOST_NO_STRESS_TEST=1 undefined-sanitizer=norecover variant=debug $*
