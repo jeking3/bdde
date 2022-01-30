@@ -27,7 +27,7 @@ you must satisfy the prerequisites of running a
 
 | Branch          | GitHub Actions |
 | :-------------: | -------------- |
-| [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/test.yml/badge.svg](https://github.com/jeking3/bdde/actions) |
+| [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/test.yml/badge.svg)](https://github.com/jeking3/bdde/actions) |
 
 ## Future Plans
 
