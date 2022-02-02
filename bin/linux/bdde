@@ -9,6 +9,8 @@
 # Boost Docker Development Environment
 #
 
+set -x
+
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
 BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 . ${BDDE_LIB}/defaults.sh

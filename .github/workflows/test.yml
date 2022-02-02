@@ -9,13 +9,9 @@ name: Test
 
 on:
   pull_request:
-    branches:
-      - main
-      - master
   push:
     branches:
       - main
-      - master
 
 jobs:
   posix:
@@ -42,7 +38,7 @@ jobs:
           - { distro: fedora, edition: 34,    arch: s390x,  toolset: gcc,   stdlib: native, limit: minimal }
           - { distro: fedora, edition: 34,    arch: s390x,  toolset: gcc,   stdlib: libc++, limit: minimal }
 
-    timeout-minutes: 120
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     env:
       BDDE_DISTRO: ${{ matrix.distro }}
