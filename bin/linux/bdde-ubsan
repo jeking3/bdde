@@ -15,4 +15,4 @@
 #
 
 set -x
-bdde UBSAN_OPTIONS=print_stacktrace=1 b2 define=BOOST_NO_STRESS_TEST=1 undefined-sanitizer=norecover variant=debug $*
+bdde UBSAN_OPTIONS="print_stacktrace=1,report_error_type=1" b2 define=BOOST_NO_STRESS_TEST=1 undefined-sanitizer=norecover variant=debug define=BOOST_NO_STRESS_TEST=1 $*
