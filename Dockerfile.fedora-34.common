@@ -28,6 +28,7 @@ RUN dnf install -y \
 ### late additions to avoid huge rebuilds, consolidate on next big release
 
 RUN dnf install -y libcxx libcxx-devel libcxxabi-devel
+RUN dnf install -y lcov
 
 # the following stuff hasn't been fully translated to redhat/fedora-speak yet
 
