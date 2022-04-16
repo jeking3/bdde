@@ -30,7 +30,7 @@ jobs:
           - { distro: ubuntu, edition: focal, arch: arm64  }
           - { distro: fedora, edition: 34,    arch: s390x  }
 
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     env:
       BDDE_DISTRO: ${{ matrix.distro }}
