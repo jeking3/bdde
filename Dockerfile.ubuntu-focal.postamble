@@ -1,0 +1,29 @@
+#
+# Copyright (c) 2018 - 2022 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Boost Docker Development Environment
+#
+
+ENV CONTAINER_USER=boost
+
+#################################################################
+# Build as a regular user
+# Credit: https://github.com/delcypher/docker-ubuntu-cxx-dev/blob/master/Dockerfile
+# License: None specified at time of import
+# Add non-root user for container but give it sudo access.
+# Password is the same as the username
+RUN useradd -m ${CONTAINER_USER} && \
+    echo ${CONTAINER_USER}:${CONTAINER_USER} | chpasswd && \
+    echo "${CONTAINER_USER}  ALL=(root) ALL" >> /etc/sudoers
+RUN chsh --shell /bin/bash ${CONTAINER_USER}
+USER ${CONTAINER_USER}
+#################################################################
+
+ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
+ENV PATH="/boost:/bdde/bin/linux:$PATH"
+WORKDIR /boost
+

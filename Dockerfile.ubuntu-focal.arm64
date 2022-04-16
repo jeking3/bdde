@@ -10,12 +10,11 @@
 #
 
 FROM multiarch/ubuntu-debootstrap:arm64-focal
-LABEL BDDE_DISTRO="ubuntu"
-LABEL BDDE_EDITION="focal"
+
 LABEL BDDE_ARCH="arm64"
-LABEL MAINTAINER="James E. King III <jking@apache.org>"
 
 RUN apt-get update && apt install --no-install-recommends -y software-properties-common
 RUN add-apt-repository universe
 
-INCLUDE+ Dockerfile.ubuntu-focal.common
+INCLUDE+ Dockerfile.ubuntu-focal.preamble
+INCLUDE+ Dockerfile.ubuntu-focal.postamble

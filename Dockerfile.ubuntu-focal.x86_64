@@ -10,9 +10,14 @@
 #
 
 FROM ubuntu:focal
-LABEL BDDE_DISTRO="ubuntu"
-LABEL BDDE_EDITION="focal"
-LABEL BDDE_ARCH="x86_64"
-LABEL MAINTAINER="James E. King III <jking@apache.org>"
 
-INCLUDE+ Dockerfile.ubuntu-focal.common
+LABEL BDDE_ARCH="x86_64"
+
+INCLUDE+ Dockerfile.ubuntu-focal.preamble
+
+# address-model=32
+RUN apt-get install -y \
+      g++-multilib
+
+INCLUDE+ Dockerfile.ubuntu-focal.postamble
+
