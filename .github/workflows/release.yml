@@ -62,7 +62,7 @@ jobs:
         if: github.event.release.prerelease
         run: |
           source bin/linux/lib/defaults.sh
-          docker tag image "${{ github.repository }}:${BDDE_SLUG}" "${{ github.repository }}:${BDDE_SLUG}.${{ github.ref_name }}"
+          docker image tag "${{ github.repository }}:${BDDE_SLUG}" "${{ github.repository }}:${BDDE_SLUG}.${{ github.ref_name }}"
           docker push "${{ github.repository }}:${BDDE_SLUG}.${{ github.ref_name }}"
 
       - name: Release Image
