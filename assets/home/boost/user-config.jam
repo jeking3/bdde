@@ -1,13 +1,13 @@
 #
-# Copyright (C) 2018 James E. King III
+# Copyright (C) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 
-# Python 3.6 dev kit is installed
-using python : 3.6 ;
+# Python 3.8 dev kit is installed (on focal, anyway)
+using python : 3.8 ;
 
 # Enable the optional MPI build
 using mpi ;
@@ -21,4 +21,3 @@ using boostbook
 using xsltproc : /usr/bin/xsltproc ;
 using doxygen : /usr/bin/doxygen ;
 using fop : /opt/fop-0.94/fop : : /usr/bin/java ;
-

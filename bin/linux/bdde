@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 - 2022 James E. King III
+# Copyright (C) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 # Boost Docker Development Environment
+# Launch a docker container with an optional command.
+#
+# Arguments:
+#   $* arguments to pass to the container shell.
 #
 
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
@@ -16,7 +20,7 @@ BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 
 set -e
 BOOST_ROOT=$(find_boost_root)
-BOOST_STEM=${BOOST_STEM:-/boost/$(realpath --logical --relative-base="${BOOST_ROOT}" "$(pwd)")}
+BOOST_STEM=${BOOST_STEM:-/boost/$(/usr/bin/realpath --logical --relative-base="${BOOST_ROOT}" "$(pwd)")}
 set +e
 
 # check if we're interactive and need a tty
@@ -24,6 +28,12 @@ if [[ -t 0 ]]; then
   IT=-it
 else
   IT=-i
+fi
+
+# workarounds
+# https://bugzilla.redhat.com/show_bug.cgi?id=2057636 (windres does not work!)
+if [ "${BDDE_DISTRO}" == "fedora" ] && [ "${BDDE_EDITION}" == "34" ] && [ "${BDDE_ARCH}" == "s390x" ]; then
+    export B2_DONT_EMBED_MANIFEST=1
 fi
 
 # Export all env vars starting with B2
@@ -36,10 +46,10 @@ if [ $# -ne 0 ]; then
   set -x
   docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined ${BDDE_DOCK} \
     -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" \
-    --user $(id -u):$(id -g) --workdir "${BOOST_STEM}" ${IT} "${env_vars[@]}" ${BDDE_REPO}:${BDDE_SLUG} ${BDDE_SHELL} -c "$*"
+    --user $(id -u):$(id -g) --workdir "${BOOST_STEM}" ${IT} "${env_vars[@]}" ${BDDE_IMAGE} ${BDDE_SHELL} -c "$*"
 else
   set -x
   docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined ${BDDE_DOCK} \
     -v "${BOOST_ROOT}:/boost:rw" -v "${BDDE_ROOT}:/bdde:ro" -v "${HOME}/.vimrc:/home/boost/.vimrc:ro" \
-      --user $(id -u):$(id -g) --workdir "${BOOST_STEM}" ${IT} "${env_vars[@]}" ${BDDE_REPO}:${BDDE_SLUG} ${BDDE_SHELL}
+      --user $(id -u):$(id -g) --workdir "${BOOST_STEM}" ${IT} "${env_vars[@]}" ${BDDE_IMAGE} ${BDDE_SHELL}
 fi

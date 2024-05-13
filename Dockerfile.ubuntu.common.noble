@@ -1,0 +1,14 @@
+#
+# Copyright (c) 2018 - 2024 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Boost Docker Development Environment
+#
+# Common dependencies for ubuntu noble.
+#
+
+RUN apt-get install -y \
+      libstdc++6-13-dbg

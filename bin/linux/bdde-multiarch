@@ -7,12 +7,8 @@
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 # Boost Docker Development Environment
-# Build and run tests with ASAN.
-#
-# Arguments:
-#   $* arguments to pass to the build string which is configured
-#      to enable ASAN.
+# Prepare the docker environment to run multiarch images.
 #
 
 set -x
-bdde UBSAN_OPTIONS=print_stacktrace=1 b2 define=BOOST_NO_STRESS_TEST=1 address-sanitizer=norecover variant=debug $*
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes

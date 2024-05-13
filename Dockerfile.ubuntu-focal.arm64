@@ -1,6 +1,6 @@
 # syntax = edrevo/dockerfile-plus
 #
-# Copyright (c) 2018 - 2022 James E. King III
+# Copyright (c) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -11,10 +11,14 @@
 
 FROM multiarch/ubuntu-debootstrap:arm64-focal
 
-LABEL BDDE_ARCH="arm64"
+LABEL BDDE_ARCH="x86_64"
+LABEL BDDE_DISTRO="ubuntu"
+LABEL BDDE_EDITION="focal"
 
 RUN apt-get update && apt install --no-install-recommends -y software-properties-common
 RUN add-apt-repository universe
 
-INCLUDE+ Dockerfile.ubuntu-focal.preamble
-INCLUDE+ Dockerfile.ubuntu-focal.postamble
+INCLUDE+ Dockerfile.common
+INCLUDE+ Dockerfile.ubuntu.common
+INCLUDE+ Dockerfile.ubuntu.common.focal
+INCLUDE+ Dockerfile.user
