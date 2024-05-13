@@ -172,19 +172,3 @@ RUN dnf install -y lcov
 # #     rm fop-0.94-bin-jdk1.4.tar.gz
 # # 
 # 
-#################################################################
-# Build as a regular user
-# Credit: https://github.com/delcypher/docker-ubuntu-cxx-dev/blob/master/Dockerfile
-# License: None specified at time of import
-# Add non-root user for container but give it sudo access.
-# Password is the same as the username
-RUN useradd -m ${CONTAINER_USER} -g wheel && \
-    echo ${CONTAINER_USER}:${CONTAINER_USER} | chpasswd && \
-    echo "${CONTAINER_USER}  ALL=(root) ALL" >> /etc/sudoers
-RUN chsh --shell /bin/bash ${CONTAINER_USER}
-USER ${CONTAINER_USER}
-#################################################################
- 
-ADD --chown=boost assets/home/boost/user-config.jam /home/boost/user-config.jam
-ENV PATH="/boost:/bdde/bin/linux:$PATH"
-WORKDIR /boost

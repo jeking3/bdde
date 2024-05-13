@@ -6,21 +6,15 @@
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
-# Requires DOCKER_BUILDKIT=1
+# Boost Docker Development Environment for Big Endian
 #
 
-FROM ubuntu:focal
+FROM multiarch/fedora:34-ppc64le
 
-LABEL BDDE_ARCH="x86_64"
-LABEL BDDE_DISTRO="ubuntu"
-LABEL BDDE_EDITION="focal"
+LABEL BDDE_ARCH="ppc64le"
+LABEL BDDE_DISTRO="fedora"
+LABEL BDDE_EDITION="34"
 
 INCLUDE+ Dockerfile.common
-INCLUDE+ Dockerfile.ubuntu.common
-INCLUDE+ Dockerfile.ubuntu.common.focal
-
-# address-model=32 support
-RUN apt-get install -y \
-      g++-multilib
-
+INCLUDE+ Dockerfile.fedora.common
 INCLUDE+ Dockerfile.user

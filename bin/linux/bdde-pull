@@ -7,10 +7,11 @@
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 # Boost Docker Development Environment
+# Pull the image from the registry.
 #
-
+set -x
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
 BDDE_LIB=${BDDE_ROOT}/bin/linux/lib
 . ${BDDE_LIB}/defaults.sh
 
-docker pull ${BDDE_REPO}:${BDDE_SLUG}
+docker pull ${BDDE_IMAGE}

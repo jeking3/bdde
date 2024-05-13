@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 - 2022 James E. King III
+# Copyright (c) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -7,12 +7,8 @@
 #
 # Boost Docker Development Environment
 #
-# Common debian family commands to install necessary files.
+# Common dependencies for ubuntu.
 #
-
-LABEL BDDE_DISTRO="ubuntu"
-LABEL BDDE_EDITION="focal"
-LABEL MAINTAINER="James E. King III <jking@apache.org>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -54,7 +50,6 @@ RUN apt-get install -y \
       libc6-dbg \
       libc++-dev \
       libc++abi-dev \
-      libstdc++6-9-dbg \
       valgrind
 
 #################################################################

@@ -10,9 +10,11 @@
 #
 
 FROM multiarch/fedora:34-s390x
+
+LABEL BDDE_ARCH="s390x"
 LABEL BDDE_DISTRO="fedora"
 LABEL BDDE_EDITION="34"
-LABEL BDDE_ARCH="s390x"
-LABEL MAINTAINER="James E. King III <jking@apache.org>"
 
-INCLUDE+ Dockerfile.fedora-34.common
+INCLUDE+ Dockerfile.common
+INCLUDE+ Dockerfile.fedora.common
+INCLUDE+ Dockerfile.user

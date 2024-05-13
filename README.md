@@ -1,7 +1,7 @@
 # Boost Docker Development Environment (BDDE)
 
 Provides a docker container for development of Boost that is easy to use
-and accelerates development and debugging:
+and accelerates development, testing, and debugging:
 
 - Containers marked 'complete' include all optional dependencies for boost
   to build completely.
@@ -10,24 +10,57 @@ and accelerates development and debugging:
 
 Supported combinations of architecture and OS:
 
-| DISTRO | EDITION | ARCH   | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
-| ------ | ------- | ------ | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
-| ubuntu | focal   | x86_64 | little | Yes       |  10.0 |  9.3 |  3.16 |     1.90 |     3.15 |
-| ubuntu | focal   | arm64  | little | Yes       |  10.0 |  9.3 |  3.16 |     1.90 |     3.15 |
-| fedora | 34      | s390x  | big    | No        |  12.0 | 11.2 |  3.20 |      2.6 |     3.18 |
+| DEFAULT | DISTRO | EDITION | ARCH    | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
+| ------- | ------ | ------- | ------- | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
+|         | fedora | 34      | ppc64le | little | No        |  12.0 | 11.2 |  3.20 |     2.6  |     3.18 |
+|         | fedora | 34      | s390x   | big    | No        |  12.0 | 11.2 |  3.20 |     2.6  |     3.18 |
+|         | ubuntu | focal   | arm64   | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | focal   | ppc64el | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | focal   | s390x   | big    | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|   yes   | ubuntu | focal   | x86_64  | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | noble   | x86_64  | little | Yes       |  18.1 | 13.2 |  3.28 |     2.13 |     3.22 |
 
 To use any image that is not native to your host architecture and endianness,
 you must satisfy the prerequisites of running a
 [multiarch](https://github.com/multiarch/qemu-user-static) docker container:
 
 1. Install the binfmt-support and qemu-user-static packages.
-2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes`
+2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes` or run `bdde-multiarch`.
+
+## Tag naming convention
+
+This project uses the form <distro>-<edition>-<arch>-<version> to tag images.
+Given a release tag such as `v3.0.0`, the following images will exist on Docker Hub:
+
+- ubuntu-focal-x86_64-v3.0.0
+- ubuntu-focal-x86_64-latest
 
 ## Status
 
 | Branch          | GitHub Actions |
 | :-------------: | -------------- |
 | [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/test.yml/badge.svg)](https://github.com/jeking3/bdde/actions) |
+
+## Make targets
+
+Running `make all` will build all the containers locally (or pull them).  It does not test the containers, but the CI script does.
+
+## Adding Platforms
+
+1. Modify the Dockerfile(s) as needed.  Follow existing patterns of re-use.
+2. A new make target will be available named image-<distro>-<edition>-<arch> automatically.  Use this to test the image build.
+3. Modify `.github/workflows/ci.yml` - note that only branches in the repository itself can properly test these changes.
+
+### Releasing
+
+1. Create a pre-release tag in the repository to generate prerelease images.  This will run tests.
+2. Promote the pre-release to a release.  This will build the images again and publish the release version and latest tags.
+
+## Upgrading
+
+In version 2.x and earlier the "latest" container was simply named by the
+"<distro>-<edition>.<arch>".  Starting with version 3.x the naming convention
+is "<distro>-<edition>-<arch>-<version>".
 
 ## Future Plans
 
@@ -55,7 +88,7 @@ boost.
 
 ### Usage
 
-Unless specified, the ubuntu-focal.x86_64 container is the one that will
+Unless specified, the ubuntu-focal-x86_64-latest container is the one that will
 be used.  See the Environment Variables section below to learn how to
 control which container is used.
 
@@ -136,37 +169,18 @@ sanitizer and to print a stacktrace on error:
 
 The following environment variables control the behavior of bdde:
 
-### `BDDE_ARCH`
-
-Set the architecture to use in the container.  Choices are based on the available
-Dockerfiles.  The default is `x86_64`.
-
-### `BDDE_DISTRO`
-
-Set the operating system for the docker container.  Choices are based on the
-available Dockerfiles.  The default is `ubuntu`.
-
-### `BDDE_DOCK`
-
-Additional options to pass to docker.  Not commonly used.
-
-### `BDDE_EDITION`
-
-Set the distribution edition (release).  Choices are based on the available
-Dockerfiles.  The default is `focal`.
-
-### `BDDE_REPO`
-
-Set the Docker Hub repository name to pull from.  The default is `jeking3/bdde`.
-
-### `BDDE_SHELL`
-
-The shell to use.  The default is `/bin/bash`.
-
-### `BOOST_ROOT`
-
-This points to the boostorg/boost superproject cloned locally.  If this
-is not set, it is determined automatically when entering the container.
+| Variable | Default | Meaning |
+| -------- | ------- | ------- |
+| BDDE_ARCH | `x86_64` | The architecture to use. |
+| BDDE_DISTRO | `ubuntu` | The distribution to use. |
+| BDDE_DOCK |  | Additional options to pass to docker when launching the container.  Not commonly used. |
+| BDDE_EDITION | `focal` | The distribution's edition to use. |
+| BDDE_REBUILD | `false` | Force container images to be rebuilt. |
+| BDDE_REGISTRY | `docker.io` | The container registry to use. |
+| BDDE_REPO | `jeking/bdde3` | The container repository to use. |
+| BDDE_SHELL | `/bin/bash` | The shell to use inside the container. |
+| BDDE_VERSION | `latest` | The container version to use. |
+| BOOST_ROOT | `$(pwd)/boost-root` | The directory containing (or planned to contain) the boostorg clone. |
 
 ## Example
 
@@ -183,8 +197,9 @@ on a little-endian x86_64 host running Ubuntu Bionic:
     user@ubuntu:~/boost$ export BDDE_DISTRO=fedora
     user@ubuntu:~/boost$ export BDDE_EDITION=34
     user@ubuntu:~/boost$ export BDDE_ARCH=s390x
+    user@ubuntu:~/boost$ export BOOST_ROOT=$HOME/boost-root
     user@ubuntu:~/boost$ bdde bootstrap.sh
-    + docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost-root:/boost:rw -v /home/jking/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost/. -it jeking3/bdde:fedora-34.s390x /bin/bash -c 'bootstrap.sh'
+    + docker run --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /home/jking/boost-root:/boost:rw -v /home/jking/jking/bdde:/bdde:ro -v /home/jking/.vimrc:/home/boost/.vimrc:ro --workdir /boost/. -it jeking3/bdde:fedora-34-s390x-latest /bin/bash -c 'bootstrap.sh'
     ###
     ###
     ### Using 'gcc' toolset.
@@ -221,6 +236,7 @@ on a little-endian x86_64 host running Ubuntu Bionic:
     
     ...
 
+    # hop into the container in a specific
     user@ubuntu:~/boost$ cd libs/predef/test
     user@ubuntu:~/boost/libs/predef/test$ bdde
     [boost@b36ab70f591f test]$ b2 toolset=gcc stdlib=gnu11 -a info_as_cpp

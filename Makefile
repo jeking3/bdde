@@ -1,23 +1,38 @@
 #
-# Copyright (C) 2018 - 2022 James E. King III
+# Copyright (C) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 
-.PHONY: all images test verify
+.DEFAULT: all
+.PHONY: images # tests (not working yet)
+all: images # tests (not working yet)
 
-images:
-	BDDE_DISTRO=ubuntu BDDE_EDITION=focal BDDE_ARCH=arm64 bin/linux/bdde-build
-	BDDE_DISTRO=ubuntu BDDE_EDITION=focal BDDE_ARCH=x86_64 bin/linux/bdde-build
-	BDDE_DISTRO=fedora BDDE_EDITION=34 BDDE_ARCH=s390x bin/linux/bdde-build
+#
+# Convert properly named Dockerfiles into targets
+#
+
+define make-targets
+$(eval WORDS   = $(subst -, ,$(subst ., ,$1)))
+$(eval DISTRO  = $(word 2, $(WORDS)))
+$(eval EDITION = $(word 3, $(WORDS)))
+$(eval ARCH    = $(word 4, $(WORDS)))
+$(info discovered target $(DISTRO)-$(EDITION)-$(ARCH))
+image-$(DISTRO)-$(EDITION)-$(ARCH):
+	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bin/linux/bdde-build
+images:: image-$(DISTRO)-$(EDITION)-$(ARCH)
+test-$(DISTRO)-$(EDITION)-$(ARCH): image-$(DISTRO)-$(EDITION)-$(ARCH)
+	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bdde ./bootstrap.sh
+	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bdde b2 lib/format
+tests:: test-$(DISTRO)-$(EDITION)-$(ARCH)
+endef
+
+DOCKERFILES = $(notdir $(wildcard $(PWD)/Dockerfile.[a-z0-9]*-[a-z0-9]*.[a-z0-9]*))
+$(foreach DOCKERFILE,$(DOCKERFILES),$(eval $(call make-targets,$(DOCKERFILE))))
 
 # unit tests for some shell code; not much to this...
-test:
+test-bash:
 	./bin/linux/test/bash_unit/bash_unit -f tap ./bin/linux/test/test_*.sh
-
-verify:
-	BDDE_DISTRO=ubuntu BDDE_EDITION=focal BDDE_ARCH=arm64 BDDE_SHELL="uname -a" bin/linux/bdde | grep aarch64
-	BDDE_DISTRO=ubuntu BDDE_EDITION=focal BDDE_ARCH=x86_64 BDDE_SHELL="uname -a" bin/linux/bdde | grep x86_64
-	BDDE_DISTRO=fedora BDDE_EDITION=34 BDDE_ARCH=s390x BDDE_SHELL="uname -a" bin/linux/bdde | grep s390x
+tests:: test-bash

@@ -9,18 +9,13 @@
 # Requires DOCKER_BUILDKIT=1
 #
 
-FROM ubuntu:focal
+FROM multiarch/ubuntu-core:ppc64el-focal
 
-LABEL BDDE_ARCH="x86_64"
+LABEL BDDE_ARCH="ppc64el"
 LABEL BDDE_DISTRO="ubuntu"
 LABEL BDDE_EDITION="focal"
 
 INCLUDE+ Dockerfile.common
 INCLUDE+ Dockerfile.ubuntu.common
 INCLUDE+ Dockerfile.ubuntu.common.focal
-
-# address-model=32 support
-RUN apt-get install -y \
-      g++-multilib
-
 INCLUDE+ Dockerfile.user

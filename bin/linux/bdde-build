@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 - 2022 James E. King III
+# Copyright (C) 2018 - 2024 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #
 # Boost Docker Development Environment
+# Build a docker image locally.
 #
 
 BDDE_ROOT=$(readlink -f "$(dirname ${BASH_SOURCE[0]})/../..")
@@ -18,4 +19,4 @@ if [ ! -z "${BDDE_REBUILD}" ]; then
 fi
 
 set -x
-docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_REPO}:${BDDE_SLUG} -f Dockerfile.${BDDE_SLUG} .
+docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_IMAGE} -f Dockerfile.${BDDE_DISTRO}-${BDDE_EDITION}.${BDDE_ARCH} .
