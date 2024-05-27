@@ -1,0 +1,20 @@
+# syntax = edrevo/dockerfile-plus
+#
+# Copyright (c) 2018 - 2024 James E. King III
+#
+# Use, modification, and distribution are subject to the
+# Boost Software License, Version 1.0. (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+# Boost Docker Development Environment
+#
+
+FROM multiarch/alpine:ppc64le-edge
+
+LABEL BDDE_ARCH="ppc64le"
+LABEL BDDE_DISTRO="alpine"
+LABEL BDDE_EDITION="edge"
+
+INCLUDE+ Dockerfile.common
+INCLUDE+ Dockerfile.alpine.common
+INCLUDE+ Dockerfile.user
