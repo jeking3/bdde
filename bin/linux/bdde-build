@@ -19,4 +19,4 @@ if [ ! -z "${BDDE_REBUILD}" ]; then
 fi
 
 set -x
-docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_IMAGE} -f Dockerfile.${BDDE_DISTRO}-${BDDE_EDITION}.${BDDE_ARCH} .
+docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_IMAGE} -f Dockerfile.${BDDE_DISTRO}-${BDDE_EDITION}-${BDDE_ARCH} .

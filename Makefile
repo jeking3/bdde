@@ -15,22 +15,29 @@ all: images # tests (not working yet)
 #
 
 define make-targets
-$(eval WORDS   = $(subst -, ,$(subst ., ,$1)))
-$(eval DISTRO  = $(word 2, $(WORDS)))
-$(eval EDITION = $(word 3, $(WORDS)))
-$(eval ARCH    = $(word 4, $(WORDS)))
-$(info discovered target $(DISTRO)-$(EDITION)-$(ARCH))
+$(eval WORDS   = $(subst -, , $1))
+$(eval DDISTRO = $(word 1, $(WORDS)))
+$(eval DISTRO  = $(word 2, $(subst ., , $(DDISTRO))))
+$(eval EDITION = $(word 2, $(WORDS)))
+$(eval ARCH    = $(word 3, $(WORDS)))
 image-$(DISTRO)-$(EDITION)-$(ARCH):
 	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bin/linux/bdde-build
 images:: image-$(DISTRO)-$(EDITION)-$(ARCH)
+info-$(DISTRO)-$(EDITION)-$(ARCH):
+	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bin/linux/bdde 'clang --version && gcc --version && cmake --version && cppcheck --version && valgrind --version'
+run-$(DISTRO)-$(EDITION)-$(ARCH):
+	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bin/linux/bdde
 test-$(DISTRO)-$(EDITION)-$(ARCH): image-$(DISTRO)-$(EDITION)-$(ARCH)
 	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bdde ./bootstrap.sh
 	BDDE_DISTRO=$(DISTRO) BDDE_EDITION=$(EDITION) BDDE_ARCH=$(ARCH) bdde b2 lib/format
 tests:: test-$(DISTRO)-$(EDITION)-$(ARCH)
+$(info created 'image-', 'info-', 'run-', and 'test-' targets for $(DISTRO)-$(EDITION)-$(ARCH))
 endef
 
-DOCKERFILES = $(notdir $(wildcard $(PWD)/Dockerfile.[a-z0-9]*-[a-z0-9]*.[a-z0-9]*))
+DOCKERFILES = $(notdir $(wildcard $(PWD)/Dockerfile.[a-z0-9]*-[a-z0-9]*-[a-z0-9]*))
 $(foreach DOCKERFILE,$(DOCKERFILES),$(eval $(call make-targets,$(DOCKERFILE))))
+$(info created group target 'images')
+$(info created group target 'tests')
 
 # unit tests for some shell code; not much to this...
 test-bash:

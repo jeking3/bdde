@@ -3,17 +3,17 @@
 Provides a docker container for development of Boost that is easy to use
 and accelerates development, testing, and debugging:
 
-- Containers marked 'complete' include all optional dependencies for boost
-  to build completely.
-- Multiarch containers allow you to build and test easily against other
-  architectures.
+- Containers marked 'complete' include all optional dependencies for boost to build completely.
+- Multiarch containers allow you to build and test easily against other architectures.
 
 Supported combinations of architecture and OS:
 
 | DEFAULT | DISTRO | EDITION | ARCH    | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
 | ------- | ------ | ------- | ------- | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
-|         | fedora | 34      | ppc64le | little | No        |  12.0 | 11.2 |  3.20 |     2.6  |     3.18 |
-|         | fedora | 34      | s390x   | big    | No        |  12.0 | 11.2 |  3.20 |     2.6  |     3.18 |
+|         | alpine | 3_20    | x86_64  | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
+|         | alpine | 3_20    | ppc64le | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
+|         | fedora | 34      | ppc64le | little | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
+|         | fedora | 34      | s390x   | big    | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
 |         | ubuntu | focal   | arm64   | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
 |         | ubuntu | focal   | ppc64el | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
 |         | ubuntu | focal   | s390x   | big    | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
@@ -26,6 +26,10 @@ you must satisfy the prerequisites of running a
 
 1. Install the binfmt-support and qemu-user-static packages.
 2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes` or run `bdde-multiarch`.
+
+Due to the performance decrease when running multiarch emulation, the CI script does not attempt
+to run asan, tsan, ubsan, or build all of boost on every platform.  There may be missing packages
+for specific libraries on some packages.  Add an issue in GitHub if you find one.
 
 ## Tag naming convention
 

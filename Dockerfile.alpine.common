@@ -7,31 +7,29 @@
 #
 # Boost Docker Development Environment
 #
-# Common redhat family commands to install necessary files.
+# Common alpine family commands to install necessary files.
 #
 
 ENV CONTAINER_USER=boost
 
-RUN dnf groupinstall -y 'Development Tools'
-RUN dnf install -y \
+RUN apk add --no-interactive \
       bzip2 \
       clang \
       cmake \
       cppcheck \
       curl \
       file \
-      gcc-c++ \
+      g++ \
       gdb \
       git \
       lcov \
-      libcxx \
-      libcxx-devel \
-      libcxxabi-devel \
-      libxslt \
+      libc++-dev \
+      linux-headers \
+      make \
+      shadow \
       sudo \
-      util-linux-user \
-      unzip \
       which \
+      unzip \
       valgrind \
       vim \
       wget
@@ -42,51 +40,51 @@ RUN dnf install -y \
 #################################################################
 
 # asio
-RUN dnf install -y \
-      openssl-devel
+RUN apk add --no-interactive \
+      openssl-dev
 
 # beast
-RUN dnf install -y \
-      openssl-devel \
-      zlib-devel
+RUN apk add --no-interactive \
+      openssl-dev \
+      zlib-dev
 
 # gil
-RUN dnf install -y \
-      libjpeg-devel \
-      libpng-devel \
-      libtiff-devel \
-      zlib-devel
+RUN apk add --no-interactive \
+      jpeg \
+      libpng-dev \
+      tiff \
+      zlib-dev
 
 # integer
-RUN dnf install -y \
-      gmp-devel
+RUN apk add --no-interactive \
+      gmp-dev
 
 # interval (for one disabled example)
-RUN dnf install -y \
-      gmp-devel \
-      mpfr-devel
+RUN apk add --no-interactive \
+      gmp-dev \
+      mpfr-dev
 
 # iostreams
-RUN dnf install -y \
-      bzip2-devel \
-      xz-devel \
-      zlib-devel \
-      libzstd-devel
+RUN apk add --no-interactive \
+      libbz2 \
+      xz-dev \
+      zlib-dev \
+      zstd-dev
 
 # locale
-RUN dnf install -y \
-      libicu-devel
+RUN apk add --no-interactive \
+      icu-dev
 
 # mpi
-RUN dnf install -y \
-      openmpi-devel
+RUN apk add --no-interactive \
+      openmpi-dev
 
 # python
-RUN dnf install -y \
-      python3-devel
+RUN apk add --no-interactive \
+      python3-dev
 
 # stacktrace
-RUN mkdir -p /usr/local/src && \
+RUN mkdir /usr/local/src && \
     cd /usr/local/src && \
     git clone https://github.com/ianlancetaylor/libbacktrace.git && \
     cd libbacktrace && \
@@ -105,10 +103,10 @@ RUN mkdir -p /usr/local/src && \
 # Prerequisites for boostbook (does what setup_boostbook.sh does)
 # for documentation builds to work
 
-RUN dnf install -y \
-      libxslt-devel \
+RUN apk add --no-interactive \
+      libxslt-dev \
       doxygen \
-      java-11-openjdk-headless
+      openjdk11-jre-headless
 
 RUN cd /opt && \
     wget --quiet http://sourceforge.net/projects/docbook/files/docbook-xsl/1.75.2/docbook-xsl-1.75.2.tar.gz && \
@@ -126,3 +124,4 @@ RUN cd /opt && \
     wget --quiet http://archive.apache.org/dist/xmlgraphics/fop/binaries/fop-0.94-bin-jdk1.4.tar.gz && \
     tar xzf fop-0.94-bin-jdk1.4.tar.gz && \
     rm fop-0.94-bin-jdk1.4.tar.gz
+
