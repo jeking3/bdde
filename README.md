@@ -5,15 +5,17 @@ and accelerates development, testing, and debugging:
 
 - Containers marked 'complete' include all optional dependencies for boost to build completely.
 - Multiarch containers allow you to build and test easily against other architectures.
+- Provides a canonical list of package dependencies for each distribution.
 
 Supported combinations of architecture and OS:
 
 | DEFAULT | DISTRO | EDITION | ARCH    | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
 | ------- | ------ | ------- | ------- | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
-|         | alpine | 3_20    | x86_64  | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
 |         | alpine | 3_20    | ppc64le | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
+|         | alpine | 3_20    | x86_64  | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
 |         | fedora | 34      | ppc64le | little | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
 |         | fedora | 34      | s390x   | big    | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
+|         | fedora | 34      | x86_64  | little | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
 |         | ubuntu | focal   | arm64   | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
 |         | ubuntu | focal   | ppc64el | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
 |         | ubuntu | focal   | s390x   | big    | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
@@ -28,8 +30,10 @@ you must satisfy the prerequisites of running a
 2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes` or run `bdde-multiarch`.
 
 Due to the performance decrease when running multiarch emulation, the CI script does not attempt
-to run asan, tsan, ubsan, or build all of boost on every platform.  There may be missing packages
-for specific libraries on some packages.  Add an issue in GitHub if you find one.
+to run asan, tsan, ubsan, or build all of boost on every platform.  The GitHub workflow file defines
+which tests run on each container so you can easily identify what works and what probably does not.
+There may be missing packages for specific libraries on some packages.  Add an issue in GitHub if you
+find one.  When adding a new distribution, recommend starting with x86_64 to prove out the package list.
 
 ## Tag naming convention
 
@@ -54,6 +58,7 @@ Running `make all` will build all the containers locally (or pull them).  It doe
 1. Modify the Dockerfile(s) as needed.  Follow existing patterns of re-use.
 2. A new make target will be available named image-<distro>-<edition>-<arch> automatically.  Use this to test the image build.
 3. Modify `.github/workflows/ci.yml` - note that only branches in the repository itself can properly test these changes.
+4. Add the platform to this README.
 
 ### Releasing
 

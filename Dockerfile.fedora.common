@@ -10,8 +10,6 @@
 # Common redhat family commands to install necessary files.
 #
 
-ENV CONTAINER_USER=boost
-
 RUN dnf groupinstall -y 'Development Tools'
 RUN dnf install -y \
       bzip2 \
@@ -24,9 +22,11 @@ RUN dnf install -y \
       gdb \
       git \
       lcov \
+      libasan \
       libcxx \
       libcxx-devel \
       libcxxabi-devel \
+      libubsan \
       libxslt \
       sudo \
       util-linux-user \
@@ -79,6 +79,7 @@ RUN dnf install -y \
 
 # mpi
 RUN dnf install -y \
+      mpich-devel \
       openmpi-devel
 
 # python
@@ -90,7 +91,7 @@ RUN mkdir -p /usr/local/src && \
     cd /usr/local/src && \
     git clone https://github.com/ianlancetaylor/libbacktrace.git && \
     cd libbacktrace && \
-    ./configure && \
+    CFLAGS=-fPIC ./configure --enable-shared && \
     make -j3 install && \
     cd .. && \
     rm -rf libbacktrace
