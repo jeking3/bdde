@@ -9,9 +9,9 @@
 # Boost Docker Development Environment
 #
 
-FROM multiarch/fedora:34-ppc64le
+FROM fedora:34
 
-LABEL BDDE_ARCH="ppc64le"
+LABEL BDDE_ARCH="x86_64"
 LABEL BDDE_DISTRO="fedora"
 LABEL BDDE_EDITION="34"
 

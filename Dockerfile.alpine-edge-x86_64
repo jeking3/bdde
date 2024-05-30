@@ -10,11 +10,11 @@
 # Requires DOCKER_BUILDKIT=1 (set by bdde-build)
 #
 
-FROM alpine:3.20
+FROM alpine:edge
 
 LABEL BDDE_ARCH="x86_64"
 LABEL BDDE_DISTRO="alpine"
-LABEL BDDE_EDITION="3.20"
+LABEL BDDE_EDITION="edge"
 
 INCLUDE+ Dockerfile.common
 INCLUDE+ Dockerfile.alpine.common

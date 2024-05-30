@@ -10,8 +10,6 @@
 # Common alpine family commands to install necessary files.
 #
 
-ENV CONTAINER_USER=boost
-
 RUN apk add --no-interactive \
       bzip2 \
       clang \

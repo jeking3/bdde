@@ -28,15 +28,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { dea: alpine-3.20-x86_64,   distro: alpine, edition: '3.20', arch: x86_64  }
-          - { dea: alpine-edge-ppc64le,  distro: alpine, edition: edge,   arch: ppc64le }
-          - { dea: fedora-34-ppc64le,    distro: fedora, edition: 34,     arch: ppc64le }
-          - { dea: fedora-34-s390x,      distro: fedora, edition: 34,     arch: s390x   }
-          - { dea: ubuntu-focal-arm64,   distro: ubuntu, edition: focal,  arch: arm64   }
-          - { dea: ubuntu-focal-ppc64el, distro: ubuntu, edition: focal,  arch: ppc64el }
-          - { dea: ubuntu-focal-s390x,   distro: ubuntu, edition: focal,  arch: s390x   }
-          - { dea: ubuntu-focal-x86_64,  distro: ubuntu, edition: focal,  arch: x86_64  }
-          - { dea: ubuntu-noble-x86_64,  distro: ubuntu, edition: noble,  arch: x86_64  }
+          - { dea: alpine-edge-ppc64le,  distro: alpine, edition: edge,  arch: ppc64le }
+          - { dea: alpine-edge-x86_64,   distro: alpine, edition: edge,  arch: x86_64  }
+          - { dea: fedora-34-ppc64le,    distro: fedora, edition: 34,    arch: ppc64le }
+          - { dea: fedora-34-s390x,      distro: fedora, edition: 34,    arch: s390x   }
+          - { dea: fedora-34-x86_64,     distro: fedora, edition: 34,    arch: x86_64  }
+          - { dea: ubuntu-focal-arm64,   distro: ubuntu, edition: focal, arch: arm64   }
+          - { dea: ubuntu-focal-ppc64el, distro: ubuntu, edition: focal, arch: ppc64el }
+          - { dea: ubuntu-focal-s390x,   distro: ubuntu, edition: focal, arch: s390x   }
+          - { dea: ubuntu-focal-x86_64,  distro: ubuntu, edition: focal, arch: x86_64  }
+          - { dea: ubuntu-noble-x86_64,  distro: ubuntu, edition: noble, arch: x86_64  }
 
     steps:
       - uses: actions/checkout@v4
@@ -130,10 +131,11 @@ jobs:
       fail-fast: false
       matrix:
         dea:
-          - alpine-3.20-x86_64
           - alpine-edge-ppc64le
+          - alpine-edge-x86_64
           - fedora-34-ppc64le
           - fedora-34-s390x
+          - fedora-34-x86_64
           - ubuntu-focal-arm64
           - ubuntu-focal-ppc64el
           - ubuntu-focal-s390x
@@ -147,25 +149,26 @@ jobs:
           - native
         include:
           # alpine uses musl for libc, and the sanitizers do not support it
-          # asan and tsan were not working on s390x and ppc64, and were disabled
+          # tsan was not working on fedora-34-x390x, and was disabled
           # ubuntu focal's tsan is busted: https://bugs.launchpad.net/ubuntu/+source/gcc-9/+bug/2029910
-          # building everything in emulation can take over 45 minutes
-          - { dea: alpine-3.20-x86_64,   distro: alpine, edition: '3.20', arch: x86_64,  asan: false, tsan: false, ubsan: false, valgrind: true, buildall: true  }
-          - { dea: alpine-edge-ppc64le,  distro: alpine, edition: edge,   arch: ppc64le, asan: false, tsan: false, ubsan: false, valgrind: true, buildall: false }
-          - { dea: fedora-34-ppc64le,    distro: fedora, edition: 34,     arch: ppc64le, asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
-          - { dea: fedora-34-s390x,      distro: fedora, edition: 34,     arch: s390x,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
-          - { dea: ubuntu-focal-arm64,   distro: ubuntu, edition: focal,  arch: arm64,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
-          - { dea: ubuntu-focal-ppc64el, distro: ubuntu, edition: focal,  arch: ppc64el, asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
-          - { dea: ubuntu-focal-s390x,   distro: ubuntu, edition: focal,  arch: s390x,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
-          - { dea: ubuntu-focal-x86_64,  distro: ubuntu, edition: focal,  arch: x86_64,  asan: true,  tsan: false, ubsan: true , valgrind: true, buildall: true  }
-          - { dea: ubuntu-noble-x86_64,  distro: ubuntu, edition: noble,  arch: x86_64,  asan: true,  tsan: true,  ubsan: true , valgrind: true, buildall: true  }
+          # building everything in emulation can take over 45 minutes so it only happens on x86_64
+          - { dea: alpine-edge-ppc64le,  distro: alpine, edition: edge,  arch: ppc64le, asan: false, tsan: false, ubsan: false, valgrind: true, buildall: false }
+          - { dea: alpine-edge-x86_64,   distro: alpine, edition: edge,  arch: x86_64,  asan: false, tsan: false, ubsan: false, valgrind: true, buildall: true  }
+          - { dea: fedora-34-ppc64le,    distro: fedora, edition: 34,    arch: ppc64le, asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
+          - { dea: fedora-34-s390x,      distro: fedora, edition: 34,    arch: s390x,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
+          - { dea: fedora-34-x86_64,     distro: fedora, edition: 34,    arch: x86_64,  asan: true,  tsan: true,  ubsan: true , valgrind: true, buildall: true  }
+          - { dea: ubuntu-focal-arm64,   distro: ubuntu, edition: focal, arch: arm64,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
+          - { dea: ubuntu-focal-ppc64el, distro: ubuntu, edition: focal, arch: ppc64el, asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
+          - { dea: ubuntu-focal-s390x,   distro: ubuntu, edition: focal, arch: s390x,   asan: false, tsan: false, ubsan: true , valgrind: true, buildall: false }
+          - { dea: ubuntu-focal-x86_64,  distro: ubuntu, edition: focal, arch: x86_64,  asan: true,  tsan: false, ubsan: true , valgrind: true, buildall: true  }
+          - { dea: ubuntu-noble-x86_64,  distro: ubuntu, edition: noble, arch: x86_64,  asan: true,  tsan: true,  ubsan: true , valgrind: true, buildall: true  }
         exclude:
           # undefined reference to std::lock_guard<std::mutex>::lock_guard(std::mutex&) (missing a package?)
           - { dea: ubuntu-focal-s390x,   toolset: clang  }
           - { dea: ubuntu-focal-s390x,   stdlib:  libc++ }
           # alpine uses musl, we're only supporting that for now as missing <cassert> errors were occurring
-          - { dea: alpine-3.20-x86_64,   toolset: clang  }
-          - { dea: alpine-3.20-x86_64,   stdlib:  libc++ }
+          - { dea: alpine-edge-x86_64,   toolset: clang  }
+          - { dea: alpine-edge-x86_64,   stdlib:  libc++ }
           - { dea: alpine-edge-ppc64le,  toolset: clang  }
           - { dea: alpine-edge-ppc64le,  stdlib:  libc++ }
 
@@ -275,4 +278,4 @@ jobs:
       - name: Build everything
         if: matrix.buildall
         working-directory: ${{ env.BOOST_ROOT }}
-        run: bdde b2 ${{ env.B2_ARGS }}
+        run: bdde b2 -a ${{ env.B2_ARGS }}
