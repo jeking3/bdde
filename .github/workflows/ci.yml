@@ -11,8 +11,11 @@ on:
   pull_request:
   release:
     types:
+      # make a pre-release first to generate <distro>-<edition>-<arch>-<tag> labels
       - published
-      - released
+      # then uncheck the pre-release when build passed to generate <distro>-<edition>-<arch>-latest labels
+      - edited
+      # still need to handle unpublished and deleted events
     
 jobs:
   build:
