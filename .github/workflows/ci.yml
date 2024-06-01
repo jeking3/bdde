@@ -226,7 +226,7 @@ jobs:
 
       - name: Override BDDE_VERSION for pre-releases
         if: github.event_name != 'pull_request'
-        run: echo "BDDE_VERSION=${{ github.ref_name }}-pre" >> $GITHUB_ENV
+        run: echo "BDDE_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
       - uses: utenx/gh-dump-context@v1
 
