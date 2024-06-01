@@ -3,7 +3,9 @@
 Provides a docker container for development of Boost that is easy to use
 and accelerates development, testing, and debugging:
 
-- Containers marked 'complete' include all optional dependencies for boost to build completely.
+- Containers marked 'complete' include all optional dependencies for boost to build completely,
+  and can run asan, tsan, ubsan, valgrind.
+- Most of the containers are nearly complete in terms of including dependencies.
 - Multiarch containers allow you to build and test easily against other architectures.
 - Provides a canonical list of package dependencies for each distribution.
 
@@ -11,16 +13,16 @@ Supported combinations of architecture and OS:
 
 | DEFAULT | DISTRO | EDITION | ARCH    | Endian | Complete? | Clang | GCC  | CMake | Cppcheck | Valgrind |
 | ------- | ------ | ------- | ------- | ------ | --------- | ----- | ---  | ----- | -------- | -------- |
-|         | alpine | 3_20    | ppc64le | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
-|         | alpine | 3_20    | x86_64  | little | Yes       |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
-|         | fedora | 34      | ppc64le | little | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
-|         | fedora | 34      | s390x   | big    | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
+|         | alpine | edge    | ppc64le | little | No        |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
+|         | alpine | edge    | x86_64  | little | No        |  17.0 | 13.2 |  3.29 |     2.14 |     3.23 |
+|         | fedora | 34      | ppc64le | little | No        |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
+|         | fedora | 34      | s390x   | big    | No        |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
 |         | fedora | 34      | x86_64  | little | Yes       |  12.1 | 11.3 |  3.20 |     2.6  |     3.18 |
-|         | ubuntu | focal   | arm64   | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
-|         | ubuntu | focal   | ppc64el | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
-|         | ubuntu | focal   | s390x   | big    | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
-|   yes   | ubuntu | focal   | x86_64  | little | Yes       |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
-|         | ubuntu | noble   | x86_64  | little | Yes       |  18.1 | 13.2 |  3.28 |     2.13 |     3.22 |
+|         | ubuntu | focal   | arm64   | little | No        |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | focal   | ppc64el | little | No        |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | focal   | s390x   | big    | No        |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|         | ubuntu | focal   | x86_64  | little | No        |  10.0 |  9.4 |  3.16 |     1.90 |     3.15 |
+|   yes   | ubuntu | noble   | x86_64  | little | Yes       |  18.1 | 13.2 |  3.28 |     2.13 |     3.22 |
 
 To use any image that is not native to your host architecture and endianness,
 you must satisfy the prerequisites of running a
@@ -40,8 +42,8 @@ find one.  When adding a new distribution, recommend starting with x86_64 to pro
 This project uses the form <distro>-<edition>-<arch>-<version> to tag images.
 Given a release tag such as `v3.0.0`, the following images will exist on Docker Hub:
 
-- ubuntu-focal-x86_64-v3.0.0
-- ubuntu-focal-x86_64-latest
+- ubuntu-noble-x86_64-v3.0.0
+- ubuntu-noble-x86_64-latest
 
 ## Status
 
@@ -97,7 +99,7 @@ boost.
 
 ### Usage
 
-Unless specified, the ubuntu-focal-x86_64-latest container is the one that will
+Unless specified, the ubuntu-noble-x86_64-latest container is the one that will
 be used.  See the Environment Variables section below to learn how to
 control which container is used.
 
@@ -183,7 +185,7 @@ The following environment variables control the behavior of bdde:
 | BDDE_ARCH | `x86_64` | The architecture to use. |
 | BDDE_DISTRO | `ubuntu` | The distribution to use. |
 | BDDE_DOCK |  | Additional options to pass to docker when launching the container.  Not commonly used. |
-| BDDE_EDITION | `focal` | The distribution's edition to use. |
+| BDDE_EDITION | `noble` | The distribution's edition to use. |
 | BDDE_REBUILD | `false` | Force container images to be rebuilt. |
 | BDDE_REGISTRY | `docker.io` | The container registry to use. |
 | BDDE_REPO | `jeking/bdde3` | The container repository to use. |
