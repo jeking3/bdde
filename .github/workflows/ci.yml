@@ -187,6 +187,8 @@ jobs:
       - uses: docker/metadata-action@v5
         id: meta
         with:
+          flavor: |
+            latest=false
           images: |
             name=ghcr.io/${{ github.repository }},enable=${{ github.event_name == 'pull_request' && 'true' || 'false' }}
             name=${{ github.repository }},enable=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
