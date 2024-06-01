@@ -54,10 +54,9 @@ jobs:
             name=ghcr.io/${{ github.repository }},enable=${{ github.event_name == 'pull_request' && 'true' || 'false' }}
             name=${{ github.repository }},enable=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
           tags: |
-            type=raw,value=latest,enable=false 
             type=ref,event=pr,prefix=${{ matrix.dea }}-pr.
             type=ref,event=tag,enable=${{ github.event.release.prerelease && 'true'  || 'false' }},prefix=${{ matrix.dea }}-
-            type=ref,event=tag,enable=${{ github.event.release.prerelease && 'false' || 'true'  }},name=${{ matrix.dea }}-latest
+            type=raw,value=${{ matrix.dea }}-latest,enable=${{ (github.event_name == 'pull_request' || github.event.release.prerelease) && 'false' || 'true' }}
 
       - uses: docker/setup-qemu-action@v3
 
@@ -196,10 +195,9 @@ jobs:
             name=ghcr.io/${{ github.repository }},enable=${{ github.event_name == 'pull_request' && 'true' || 'false' }}
             name=${{ github.repository }},enable=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
           tags: |
-            type=raw,value=latest,enable=false 
             type=ref,event=pr,prefix=${{ matrix.dea }}-pr.
             type=ref,event=tag,enable=${{ github.event.release.prerelease && 'true'  || 'false' }},prefix=${{ matrix.dea }}-
-            type=ref,event=tag,enable=${{ github.event.release.prerelease && 'false' || 'true'  }},name=${{ matrix.dea }}-latest
+            type=raw,value=${{ matrix.dea }}-latest,enable=${{ (github.event_name == 'pull_request' || github.event.release.prerelease) && 'false' || 'true' }}
 
       - uses: docker/setup-qemu-action@v3
 
