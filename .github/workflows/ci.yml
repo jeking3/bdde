@@ -14,7 +14,7 @@ on:
       # make a pre-release first to generate <distro>-<edition>-<arch>-<tag> labels
       - published
       # then uncheck the pre-release when build passed to generate <distro>-<edition>-<arch>-latest labels
-      - edited
+      - released
       # still need to handle unpublished and deleted events
     
 jobs:
