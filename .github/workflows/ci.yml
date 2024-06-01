@@ -192,8 +192,7 @@ jobs:
             name=${{ github.repository }},enable=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
           tags: |
             type=ref,event=pr,prefix=${{ matrix.dea }}-pr.
-            type=ref,event=tag,enable=${{ github.event.release.prerelease && 'true'  || 'false' }},prefix=${{ matrix.dea }}-,suffix=-pre
-            type=ref,event=tag,enable=${{ github.event.release.prerelease && 'false' || 'true'  }},prefix=${{ matrix.dea }}-
+            type=ref,event=tag,enable=,prefix=${{ matrix.dea }}-
 
       - uses: docker/setup-qemu-action@v3
 
