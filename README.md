@@ -39,7 +39,7 @@ find one.  When adding a new distribution, recommend starting with x86_64 to pro
 
 ## Tag naming convention
 
-This project uses the form <distro>-<edition>-<arch>-<version> to tag images.
+This project uses the form `<distro>-<edition>-<arch>-<version>` to tag images.
 Given a release tag such as `v3.0.0`, the following images will exist on Docker Hub:
 
 - ubuntu-noble-x86_64-v3.0.0
@@ -49,7 +49,7 @@ Given a release tag such as `v3.0.0`, the following images will exist on Docker 
 
 | Branch          | GitHub Actions |
 | :-------------: | -------------- |
-| [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/test.yml/badge.svg)](https://github.com/jeking3/bdde/actions) |
+| [`main`](https://github.com/jeking3/bdde) | [![Build Status](https://github.com/jeking3/bdde/actions/workflows/ci.yml/badge.svg)](https://github.com/jeking3/bdde/actions) |
 
 ## Make targets
 
@@ -58,7 +58,7 @@ Running `make all` will build all the containers locally (or pull them).  It doe
 ## Adding Platforms
 
 1. Modify the Dockerfile(s) as needed.  Follow existing patterns of re-use.
-2. A new make target will be available named image-<distro>-<edition>-<arch> automatically.  Use this to test the image build.
+2. A new make target will be available named `image-<distro>-<edition>-<arch>` automatically.  Use this to test the image build.
 3. Modify `.github/workflows/ci.yml` - note that only branches in the repository itself can properly test these changes.
 4. Add the platform to this README.
 
@@ -70,8 +70,8 @@ Running `make all` will build all the containers locally (or pull them).  It doe
 ## Upgrading
 
 In version 2.x and earlier the "latest" container was simply named by the
-"<distro>-<edition>.<arch>".  Starting with version 3.x the naming convention
-is "<distro>-<edition>-<arch>-<version>".
+`<distro>-<edition>.<arch>`.  Starting with version 3.x the naming convention
+is `<distro>-<edition>-<arch>-<version>`.
 
 ## Future Plans
 
@@ -92,14 +92,13 @@ docker container environment.  Complete containers include:
 BDDE will either use `BOOST_ROOT`, or determine it automatically based
 on your current working directory inside a boost source tree.
 
-BDDE creates a docker container with the boost sources mounted into `/boost`,
-using a regular user named `boost` with a sudo password of `boost`.  The
-use of a regular user ensures there are no root dependencies for building
-boost.
+BDDE maps your user into the container by mounting the passwd, group, and
+shadow files into the container.  This allows the directory containing boost
+to be mounted and accessed with your identity.
 
 ### Usage
 
-Unless specified, the ubuntu-noble-x86_64-latest container is the one that will
+Unless specified, the `ubuntu-noble-x86_64-latest` container is the one that will
 be used.  See the Environment Variables section below to learn how to
 control which container is used.
 
