@@ -29,7 +29,7 @@ you must satisfy the prerequisites of running a
 [multiarch](https://github.com/multiarch/qemu-user-static) docker container:
 
 1. Install the binfmt-support and qemu-user-static packages.
-2. Run `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes` or run `bdde-multiarch`.
+2. Run `bdde-multiarch`.
 
 Due to the performance decrease when running multiarch emulation, the CI script does not attempt
 to run asan, tsan, ubsan, or build all of boost on every platform.  The GitHub workflow file defines
@@ -200,7 +200,7 @@ on a little-endian x86_64 host running Ubuntu Bionic:
 ### Installing Prerequisites
 
     user@ubuntu:~$ sudo apt-get install -y binfmt-support qemu-user-static
-    user@ubuntu:~$ sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    user@ubuntu:~$ bdde-multiarch
 
 ### Running a unit test in Boost.Predef while emulating a big-endian system
 

@@ -18,5 +18,7 @@ if [ ! -z "${BDDE_REBUILD}" ]; then
   DOCKER_CACHE_OPTION=--no-cache
 fi
 
+${BDDE_ROOT}/bdde-multiarch --version
+
 set -x
 docker build ${DOCKER_CACHE_OPTION} -t ${BDDE_IMAGE} -f Dockerfile.${BDDE_DISTRO}-${BDDE_EDITION}-${BDDE_ARCH} .

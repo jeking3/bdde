@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 - 2024 James E. King III
+# Copyright (C) 2018 - 2025 James E. King III
 #
 # Use, modification, and distribution are subject to the
 # Boost Software License, Version 1.0. (See accompanying file
@@ -10,5 +10,18 @@
 # Prepare the docker environment to run multiarch images.
 #
 
-set -x
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+# NOTE: See https://github.com/multiarch/qemu-user-static/issues/212 for why we use tonistiigi/binfmt instead.
+
+#BDDE_MULTIARCH="multiarch/qemu-user-static --reset -p yes"
+BDDE_MULTIARCH=tonistiigi/binfmt:qemu-v9.2.2-52
+
+if [ "$1" == "--version" ]; then
+  docker run --privileged --rm ${BDDE_MULTIARCH} --version
+else
+  set -x
+  # changed from multiarch/qemu-user-static to tonistiigi/binfmt
+  # because the multiarch docker image hasn't been updated
+  # see https://github.com/multiarch/qemu-user-static/issues/212
+  docker run --privileged --rm ${BDDE_MULTIARCH} --uninstall "qemu-*"
+  docker run --rm --privileged ${BDDE_MULTIARCH} --install all
+fi
